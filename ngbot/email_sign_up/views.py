@@ -1,28 +1,32 @@
 import os
 import time
-from django.shortcuts import render
 from django.http import HttpResponse
-from os.path import dirname as name_of_directory
+from os.path import dirname, abspath, join
 from selenium import webdriver
+from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from datetime import datetime
+
 #Global Variables
-chrome_relative_path = "chromedriver_linux64/chromedriver"
+base_dir_path = dirname(dirname(dirname(abspath(__file__))))
+chromedriver_path = join(base_dir_path, "chromedriver_linux64/chromedriver")
 password = 'R$&fakeemail95'
 f_name = "Anonymous"
 l_name ="Fakeson"
 #end of global variables
 
+relative_chromedriver_path = "./../../chromedriver_linux64/chromedriver"
 
-def init_chrome_driver():
 
-    global chrome_relative_path
-    chrome_driver_path = name_of_directory(name_of_directory(name_of_directory(__file__)))
+def init_chrome_driver(headless=False):
 
-    print("chrome_driver_path  = {0}".format(chrome_driver_path))
-    chrome_driver_path = os.path.join(chrome_driver_path, chrome_relative_path)
-    print("chrome_driver_path  = {0}".format(chrome_driver_path))
-    driver = webdriver.Chrome(chrome_driver_path)
+    global chromedriver_path
+
+    chrome_options = ChromeOptions()
+    if headless:
+        chrome_options.add_argument("---headless")
+    driver = Chrome(executable_path=chromedriver_path,options=chrome_options)
     return driver
 
 
@@ -123,6 +127,86 @@ def create_outlook_email(request):
     time.sleep(1)
     driver.quit()
 
+def create_proton_mail_account(request, username, password, verf_email):
+    sign_up_link = "https://mail.protonmail.com/create/new?language=en"
+    driver = init_chrome_driver(False)
+    driver.get(sign_up_link)
+
+    # Sending username
+    username_element = driver.find_element_by_id("username")
+    username_element.send_keys(username)
+
+    password_element = driver.find_element_by_id("password")
+    password_element.send_keys(password)
+
+    passwordc_element = driver.find_element_by_id("passwordc")
+    passwordc_element.send_keys(password)
+
+    button = driver.find_element_by_class_name("signUpProcess-btn-create")
+    button.click()
+    time.sleep(1.1)
+
+    try:
+        confirm_button = driver.find_element_by_id("confirmModalBtn")
+        confirm_button.click()
+        time.sleep(1.1)
+
+        verf_email_input = driver.find_element_by_class_name("codeVerificator-email-input")
+        verf_email_input.send_keys(verf_email)
+        verf_email_input.submit()
+
+        #finish section
+        finish_btn = driver.find_element_by_id("")
+
+    except Exception as err:
+        print("An error has occurred")
+        print(err)
+        time.sleep(100)
+        driver.quit()
+    time.sleep(100)
+    # driver.quit()
+
+def create_tutanota_email_account(request, username, password):
+
+    driver = init_chrome_driver(False)
+    driver.get("https://mail.tutanota.com/signup")
+
+    # Achar o botão de Free Account
+    elements = []
+    t1 = datetime.now()
+    div = None
+    while len(elements) == 0 and (datetime.now() - t1).seconds < 120:
+        elements = driver.find_elements_by_class_name("dialog-header")
+        count = 0
+        for elem in elements:
+            count+=1
+            if elem.get_attribute("innerText").find("Free") != -1:
+                div = elem
+    if div == None:
+        raise Exception("Não foi possível achar o botão de free account.")
+    else:
+        try:
+            file = open("./tutanota_script.js","r")
+            script = ""
+            for line in file.readlines():
+                script+="\n"+line
+            print("script: \n {0}".format(script))
+            if script != "":
+                driver.execute_script(script)
+
+        except Exception as err:
+            print("Erro:")
+            print(err)
+
+    # driver.execute_script("window.alert('I think we found it')")
+    time.sleep(10)
+    driver.quit()
+
+
 if __name__ == "__main__":
-    print("it is working")
-    create_outlook_email(None)
+    # print("Just a Test")
+    # proton_username = "mariasilvarse"
+    # password = "rsefakeemail95"
+    # verf_email = "rafael.eusebio95@gmail.com"
+    # create_proton_mail_account(None, proton_username, password, verf_email)
+    create_tutanota_email_account(None, None, None)
