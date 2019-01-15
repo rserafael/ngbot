@@ -22,7 +22,6 @@ relative_chromedriver_path = "./../../chromedriver_linux64/chromedriver"
 def init_chrome_driver(headless=False):
 
     global chromedriver_path
-
     chrome_options = ChromeOptions()
     if headless:
         chrome_options.add_argument("---headless")
@@ -167,7 +166,6 @@ def create_proton_mail_account(request, username, password, verf_email):
     # driver.quit()
 
 def create_tutanota_email_account(request, username, password):
-
     driver = init_chrome_driver(False)
     driver.get("https://mail.tutanota.com/signup")
 
@@ -193,10 +191,21 @@ def create_tutanota_email_account(request, username, password):
             print("script: \n {0}".format(script))
             if script != "":
                 driver.execute_script(script)
-
+                if len(driver.find_elements_by_class_name("dialog-header")) <= 1:
+                    inputs = driver.find_elements_by_tag_name("input")[0:5]
+                    for index in range(len(inputs)):
+                        if index == 0:
+                            inputs[index].send_keys(username)
+                        elif index == 1 or index == 2:
+                            inputs[index].send_keys(password)
+                        elif index == 3 or index == 4:
+                            inputs[index].click()
+                        else:
+                            print("Index exceeds number of options")
         except Exception as err:
-            print("Erro:")
+            print("Aconteceu um erro:")
             print(err)
+            print("------------Fim do Erro-----------------")
 
     # driver.execute_script("window.alert('I think we found it')")
     time.sleep(10)
@@ -209,4 +218,4 @@ if __name__ == "__main__":
     # password = "rsefakeemail95"
     # verf_email = "rafael.eusebio95@gmail.com"
     # create_proton_mail_account(None, proton_username, password, verf_email)
-    create_tutanota_email_account(None, None, None)
+    create_tutanota_email_account(None, "mariasilvarse", "rsefakeemail95")

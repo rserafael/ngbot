@@ -17,10 +17,8 @@ if(freeDiv !== null){
     }
     if(selectDiv !== null){
         selectDiv.children[0].click();
-        // window.confirm("Sumiu ? ");
-        console.log(`sumiu ? `);
     }
 }
 else{
-    console.log("Não foi possível achar o botão de free account");
+    window.alert("Não foi possível achar o botão de free account");
 }
