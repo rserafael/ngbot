@@ -7,6 +7,7 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from datetime import datetime
+from http import client
 
 #Global Variables
 base_dir_path = dirname(dirname(dirname(abspath(__file__))))
@@ -29,11 +30,11 @@ def init_chrome_driver(headless=False):
     return driver
 
 
-def create_outlook_email(request):
-
-    global password
-    global f_name
-    global l_name
+def create_outlook_email(request, f_name, l_name, password):
+    sleep_time = 3
+    # global password
+    # global f_name
+    # global l_name
     driver = init_chrome_driver()
     driver.get("https://outlook.live.com/owa/?nlp=1&signup=1")
 
@@ -42,7 +43,7 @@ def create_outlook_email(request):
     login_name_input.send_keys("justafakemembername")
     next_button = driver.find_element_by_id("iSignupAction")
     next_button.click()
-    time.sleep(3)
+    time.sleep(sleep_time)
     #end login
 
     #start password
@@ -52,7 +53,7 @@ def create_outlook_email(request):
     check_box_input.click()
     next_button = driver.find_element_by_id("iSignupAction")
     next_button.click()
-    time.sleep(1)
+    time.sleep(sleep_time)
     #end password
 
     #user's information
@@ -62,7 +63,7 @@ def create_outlook_email(request):
     last_name.send_keys(l_name)
     next_button = driver.find_element_by_id("iSignupAction")
     next_button.click()
-    time.sleep(1)
+    time.sleep(sleep_time)
     #end of user's information
 
     #start add details
@@ -77,23 +78,23 @@ def create_outlook_email(request):
     actions = ActionChains(driver)
     actions.move_to_element(month_input)
     actions.perform()
-    time.sleep(3)
+    time.sleep(0.1)
     actions.click(month_input)
     actions.perform()
-    time.sleep(1)
+    time.sleep(0.1)
     actions.key_down(Keys.ARROW_DOWN, month_input)
     actions.perform()
-    time.sleep(1)
+    time.sleep(0.1)
     actions.key_down(Keys.ARROW_DOWN, month_input)
     actions.perform()
     print("done 1 ")
-    time.sleep(3)
+    time.sleep(0.1)
     actions.context_click(month_input)
     print("done 2 ")
-    time.sleep(3)
+    time.sleep(0.1)
     actions.double_click(month_input)
     print("done 3 ")
-    time.sleep(3)
+    time.sleep(0.1)
 
     print("2 - after::month_input.value = {0}".format(month_input.get_property("value")))
     print("2 - after::month_input.value = {0}".format(month_input.get_attribute("value")))
@@ -103,27 +104,40 @@ def create_outlook_email(request):
     year_input.send_keys("1999")
     next_button = driver.find_element_by_id("iSignupAction")
     next_button.click()
-    time.sleep(3)
+    time.sleep(sleep_time)
     #end add details
 
-    #start the image processing
-    elems = driver.find_elements_by_class_name("text-body")
-    print(len(elems))
-    img = None
-    time.sleep(10)
-    for elem in elems:
-        print(elem)
-        print(elem.get_property("tagName"))
-        if elem.get_property("tagName") == "IMG":
-            img = elem
-    if img != None:
-        print("we found it: ")
-        print(img.get_property("src"))
-    else:
-        print("there is no img... :(")
-    time.sleep(10)
-    #end the image processing
-    time.sleep(1)
+    # #start the image processing
+    # print("we are sleeping")
+    # # id = wlspispHIPBimg04b3f5d579a6b47679e45e3d2b8e49d090
+    # # id2 = wlspispHIPBimg021d5fb6540f941838ad635ff3d93474d0
+    # time.sleep(10000)
+    # elems = driver.find_elements_by_class_name("text-body")
+    # print(len(elems))
+    # img = None
+    # time.sleep(sleep_time*2)
+    # for elem in elems:
+    #     print(elem)
+    #     print(elem.get_property("tagName"))
+    #     if elem.get_property("tagName") == "IMG":
+    #         img = elem
+    # if img != None:
+    #     print("we found it: ")
+    #     print(img.get_property("src"))
+    # else:
+    #     print("there is no img... :(")
+    # time.sleep(sleep_time*2)
+    # #end the image processing
+
+    # Manual Image Processing
+    img_container = driver.find_element_by_id("hipTemplateContainer")
+    if img_container != None:
+        img = img_container.find_element_by_tag_name("img")
+        print("source = {0}".format(img.get_property("src")))
+
+        time.sleep(10000)
+
+    time.sleep(sleep_time)
     driver.quit()
 
 def create_proton_mail_account(request, username, password, verf_email):
@@ -188,8 +202,9 @@ def create_tutanota_email_account(request, username, password):
             script = ""
             for line in file.readlines():
                 script+="\n"+line
-            print("script: \n {0}".format(script))
+            # print("script: \n {0}".format(script))
             if script != "":
+                time.sleep(2)
                 driver.execute_script(script)
                 if len(driver.find_elements_by_class_name("dialog-header")) <= 1:
                     inputs = driver.find_elements_by_tag_name("input")[0:5]
@@ -202,15 +217,39 @@ def create_tutanota_email_account(request, username, password):
                             inputs[index].click()
                         else:
                             print("Index exceeds number of options")
+                    btns = driver.find_elements_by_tag_name("button")
+                    time.sleep(5)
+                    for btn in btns:
+                        if btn.get_property("title").find("Next") != -1:
+                            btn.click()
+                            break
+                    time.sleep(5)
+                    imgs = driver.find_elements_by_tag_name("img")
+                    imgs_source = imgs[0].get_property("src")
+                    print("image source: {0}".format(imgs_source))
+                    if imgs_source != None:
+                        conn = client.HTTPConnection("localhost", 8083)
+                        conn.request("GET", imgs_source)
+                        response = conn.getresponse()
+                        print("response = {0}".format(response.read()))
+                else:
+                    print("length of 'dialog-header' elements = {0}".format(len(driver.find_elements_by_class_name("dialog-header"))))
+                    try:
+                        driver.switch_to.alert.accept()
+                        # driver.switch_to.
+                    except Exception as err:
+                        print("Erro aqui: ")
+                        print(err)
+
         except Exception as err:
             print("Aconteceu um erro:")
             print(err)
             print("------------Fim do Erro-----------------")
 
     # driver.execute_script("window.alert('I think we found it')")
-    time.sleep(10)
-    driver.quit()
-
+    # time.sleep(10)
+    # driver.quit()
+    time.sleep(10000)
 
 if __name__ == "__main__":
     # print("Just a Test")
@@ -218,4 +257,5 @@ if __name__ == "__main__":
     # password = "rsefakeemail95"
     # verf_email = "rafael.eusebio95@gmail.com"
     # create_proton_mail_account(None, proton_username, password, verf_email)
-    create_tutanota_email_account(None, "mariasilvarse", "rsefakeemail95")
+    # create_tutanota_email_account(None, "mariasilvarse", "rsefakeemail95")
+    create_outlook_email(None, f_name, l_name, password)
