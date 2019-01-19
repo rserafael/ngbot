@@ -25,56 +25,68 @@ def init_chrome_driver(headless=False):
     driver = Chrome(executable_path=chromedriver_path,options=chrome_options)
     return driver
 
+def retry_sign_up(driver, sign_up_btn, uname):
+    sign_up_btn.click()
+    time.sleep(1)
+    error_alert = driver.find_element_by_id("ssfErrorAlert")
+    if (error_alert != None):
+        print("error_alert = {0}".format(error_alert.get_property("innerText")))
+        input_error = driver.find_elements_by_class_name("coreSpriteInputError")
+        input_refresh = driver.find_elements_by_class_name("coreSpriteInputRefresh")
+        if input_error != None:
+            print("Erro no Input")
+            if len(input_error) >= 1:
+                if input_refresh != None:
+                    print("Existe algum input refresher")
+                    print("len(input_refresh = {0}".format(len(input_refresh)))
+                    if len(input_refresh) >= 1:
+                        input_refresh[0].get_property("parentElement").click()
+                        time.sleep(0.5)
+                        print("username = {0}".format(uname.get_property("value")))
+                        time.sleep(3)
+                        print("retrying...")
+                        retry_sign_up(driver, sign_up_btn, uname)
+
+    else:
+        return True
 
 def create_account(request, email, full_name, username, password):
 
+    writing_time = 0.8
+
     driver = init_chrome_driver(False)
     driver.get("https://www.instagram.com/")
-    time.sleep(3)
+    time.sleep(2)
 
     email_element = driver.find_element_by_name("emailOrPhone")
     email_element.send_keys(email)
+    time.sleep(writing_time)
 
     fname = driver.find_element_by_name("fullName")
     fname.send_keys(full_name)
+    time.sleep(writing_time)
 
     uname = driver.find_element_by_name("username")
     uname.send_keys(username)
+    time.sleep(writing_time)
 
     pwd = driver.find_element_by_name("password")
     pwd.send_keys(password)
+    time.sleep(writing_time)
 
-    # Achando o erro:
-
-    erro = driver.find_elements_by_class_name("coreSpriteInputError")
-    refresh = driver.find_elements_by_class_name("coreSpriteInputRefresh")
-
-    if erro != None:
-        print("Erro no Input")
-        if len(erro) == 1:
-            if refresh != None:
-                if len(refresh) == 1:
-                    refresh[0].get_property("parentElement").click()
-                    time.sleep(0.5)
-                    print("username = {0}".format(uname.get_property("value")))
-
-
-
-    time.sleep(1000)
+    time.sleep(2)
+    #find the sign up button
 
     btns = driver.find_elements_by_tag_name("button")
     sign_up_btn = None
-    if len(btns) > 0:
-        for btn in btns:
-            if btn.get_property("innerText").find("Sign up") != -1:
-                sign_up_btn = btn
-                break
-        if sign_up_btn != None:
-            sign_up_btn.click()
-        else:
-            print("Não achamos o signup button")
+    for btn in btns:
+        if btn.get_property("innerText").find("Sign up") != -1:
+            sign_up_btn = btn
+            break
+    if sign_up_btn != None:
+        retry_sign_up(driver, sign_up_btn, uname)
     else:
-        print("Não achamos nenhum button element")
+        print("Não encontramos o Sign Up Button")
 
 
 
