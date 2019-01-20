@@ -10,24 +10,24 @@ from datetime import datetime
 from http import client
 
 #Global Variables
-base_dir_path = dirname(dirname(dirname(abspath(__file__))))
-chromedriver_path = join(base_dir_path, "chromedriver_linux64/chromedriver")
-password = 'R$&fakeemail95'
-f_name = "Anonymous"
-l_name ="Fakeson"
+# base_dir_path = dirname(dirname(dirname(abspath(__file__))))
+# chromedriver_path = join(base_dir_path, "chromedriver_linux64/chromedriver")
+# password = 'R$&fakeemail95'
+# f_name = "Anonymous"
+# l_name ="Fakeson"
 #end of global variables
 
-relative_chromedriver_path = "./../../chromedriver_linux64/chromedriver"
-
-
-def init_chrome_driver(headless=False):
-
-    global chromedriver_path
-    chrome_options = ChromeOptions()
-    if headless:
-        chrome_options.add_argument("---headless")
-    driver = Chrome(executable_path=chromedriver_path,options=chrome_options)
-    return driver
+# relative_chromedriver_path = "./../../chromedriver_linux64/chromedriver"
+#
+#
+# def init_chrome_driver(headless=False):
+#
+#     global chromedriver_path
+#     chrome_options = ChromeOptions()
+#     if headless:
+#         chrome_options.add_argument("---headless")
+#     driver = Chrome(executable_path=chromedriver_path,options=chrome_options)
+#     return driver
 
 
 def create_outlook_email(request, f_name, l_name, password):
