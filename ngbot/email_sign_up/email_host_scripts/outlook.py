@@ -245,35 +245,6 @@ class OutLook(object):
         return False
 
 
-# print("before::month_input.value = {0}".format(month_input.get_property("value")))
-# month_input.send_keys("5")
-# print("after::month_input.value = {0}".format(month_input.get_property("value")))
-# print("after::month_input.value = {0}".format(month_input.get_attribute("value")))
-# actions = ActionChains(driver)
-# actions.move_to_element(month_input)
-# actions.perform()
-# time.sleep(0.1)
-# actions.click(month_input)
-# actions.perform()
-# time.sleep(0.1)
-# actions.key_down(Keys.ARROW_DOWN, month_input)
-# actions.perform()
-# time.sleep(0.1)
-# actions.key_down(Keys.ARROW_DOWN, month_input)
-# actions.perform()
-# print("done 1 ")
-# time.sleep(0.1)
-# actions.context_click(month_input)
-# print("done 2 ")
-# time.sleep(0.1)
-# actions.double_click(month_input)
-# print("done 3 ")
-# time.sleep(0.1)
-# print("2 - after::month_input.value = {0}".format(month_input.get_property("value")))
-# print("2 - after::month_input.value = {0}".format(month_input.get_attribute("value")))
-# end add details
-
-
 def create_outlook_email(request, f_name, l_name, password):
     sleep_time = 3
     # global password
