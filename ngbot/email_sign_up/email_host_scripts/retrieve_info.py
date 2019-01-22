@@ -35,19 +35,19 @@ def set_br_persons():
     br_persons = {}
     count = 1
     try:
-        for n in br_male_names.keys():
-            try:
-                name = br_male_names[n]
-                for ln in br_lastnames:
-                    lastname = br_lastnames[ln]
-                    br_persons['person{0}'.format(count)] = Person(name, lastname, 'BR', "M").__dict__
-                    count += 1
-            except Exception as err:
-                print("an error")
-                print(err)
+        try:
+            for n in br_male_names:
+                    name = br_male_names[n]
+                    for ln in br_lastnames:
+                        lastname = br_lastnames[ln]
+                        br_persons['person{0}'.format(count)] = Person(name, lastname, 'BR', "M").__dict__
+                        count += 1
+        except Exception as err:
+            print("an error")
+            print(err)
 
         for n in br_female_names:
-            name = br_male_names[n]
+            name = br_female_names[n]
             for ln in br_lastnames:
                 lastname = br_lastnames[ln]
                 br_persons['person{0}'.format(count)] = Person(name, lastname, 'BR', "F").__dict__
@@ -71,7 +71,7 @@ def set_us_persons():
             count += 1
 
     for n in us_female_names:
-        name = us_male_names[n]
+        name = us_female_names[n]
         for ln in us_lastnames:
             lastname = us_lastnames[ln]
             us_persons['person{0}'.format(count)] = Person(name, lastname, 'US', "F").__dict__

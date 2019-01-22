@@ -196,9 +196,9 @@ def write_json_file(name_list, file_name, file_format='json'):
             index = 1
             name_dict = {}
             for name in name_list:
-                str_number = encode_number(index)
-                code = bcrypt.hashpw(str_number.encode(), bcrypt.gensalt()).__str__()
-                name_dict['name_{0}_arch'.format(code)] = name
+                # str_number = encode_number(index)
+                # code = bcrypt.hashpw(str_number.encode(), bcrypt.gensalt()).__str__()
+                name_dict['name_{0}_arch'.format(index)] = name
                 index += 1
             content = json.dumps(obj=name_dict, ensure_ascii=False)
             file.writelines(content)
