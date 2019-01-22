@@ -130,11 +130,23 @@ def get_br_female_names():
 
 def get_us_male_names():
     driver = init_chrome_driver(True, True, "https://names.mongabay.com/male_names.htm")
-    links = driver.find_element_by_tag_name("a")
+    links = driver.find_elements_by_tag_name("a")
     names = []
     for link in links:
         if link.get_attribute("href").find("names") != -1:
-            names.append(link.get_property("innerText").title())
+            content = link.get_property("innerText")
+            if is_ascii(content):
+                names.append(content.title())
+    return names
+
+def get_us_female_names():
+    driver = init_chrome_driver(True, True, "https://names.mongabay.com/baby_names/girls250.html")
+    links = driver.find_elements_by_tag_name("td")
+    names = []
+    for link in links:
+        content = link.get_property("innerText")
+        if is_ascii(content) and content != " ":
+            names.append(content.title())
     return names
 
 def write_json_file(name_list, file_name, file_format='json'):
@@ -181,7 +193,9 @@ def get_and_write(func, filename):
         raise TypeError("Must pass a function.")
 
 if __name__ == "__main__":
-    # get_and_write(get_sobrenomes, 'br_lastnames')
-    # get_and_write(get_americans_lastnames, 'us_lastnames')
-    # get_and_write(get_br_male_names, 'br_male_names')
-    # get_and_write(get_br_female_names, 'br_female_names')
+    get_and_write(get_sobrenomes, 'br_lastnames')
+    get_and_write(get_americans_lastnames, 'us_lastnames')
+    get_and_write(get_br_male_names, 'br_male_names')
+    get_and_write(get_br_female_names, 'br_female_names')
+    get_and_write(get_us_male_names, 'us_male_names')
+    get_and_write(get_us_female_names, 'us_female_names')
