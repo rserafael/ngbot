@@ -12,7 +12,7 @@ us_lastnames = None
 def get_all_names():
     global br_male_names, br_female_names, br_lastnames, us_male_names, us_female_names, us_lastnames
 
-    br_male_names = json.load(open('br_male_names.json', 'r'),)
+    br_male_names = json.load(open('br_male_names.json', 'r'), )
     br_female_names = json.load(open('br_female_names.json', 'r'))
     br_lastnames = json.load(open('br_lastnames.json', 'r'))
     us_male_names = json.load(open('us_male_names.json', 'r'))
@@ -78,15 +78,17 @@ def set_us_persons():
             count += 1
     return us_persons
 
+
 def write_json(file_name, person_dict, file_format="json"):
     index = 1
     full_file_name = "{0}{1}.{2}".format(file_name, index, file_format)
     while os.path.exists(full_file_name):
-        index+=1
+        index += 1
         full_file_name = "{0}{1}.{2}".format(file_name, index, file_format)
     file = open(full_file_name, 'w')
     file.writelines(json.dumps(person_dict))
     file.close()
+
 
 def write_person_json():
     get_all_names()
@@ -94,6 +96,7 @@ def write_person_json():
     us_persons = set_us_persons()
     write_json("br_persons", br_persons)
     write_json("us_persons", us_persons)
+
 
 if __name__ == "__main__":
     write_person_json()

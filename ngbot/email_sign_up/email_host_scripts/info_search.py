@@ -4,6 +4,7 @@ import string
 from string import ascii_letters, printable
 import json
 import os
+import bcrypt
 
 base_dir_path = dirname(dirname(dirname(dirname(abspath(__file__)))))
 chromedriver_path = join(base_dir_path, "chromedriver_linux64/chromedriver")
@@ -66,6 +67,7 @@ def encode_number(number):
         for n in old_str:
             new_str += str(number_dict[int(n)])
         return new_str
+
 
 def is_ascii(word):
     if type(word) == str:
@@ -194,7 +196,9 @@ def write_json_file(name_list, file_name, file_format='json'):
             index = 1
             name_dict = {}
             for name in name_list:
-                name_dict['name_{0}_arch'.format(encode_number(index))] = name
+                str_number = encode_number(index)
+                code = bcrypt.hashpw(str_number.encode(), bcrypt.gensalt()).__str__()
+                name_dict['name_{0}_arch'.format(code)] = name
                 index += 1
             content = json.dumps(obj=name_dict, ensure_ascii=False)
             file.writelines(content)
