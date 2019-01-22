@@ -47,6 +47,26 @@ def init_chrome_driver(headless=False, incognito=False, url=""):
 #     sobrenome_json = json.dumps(sobrenomes)
 #     print(sobrenome_json)
 
+def encode_number(number):
+    number_dict = {
+        0: 'o',
+        1: 'i',
+        2: 'z',
+        3: 'e',
+        4: 'a',
+        5: 's',
+        6: 'c',
+        7: 't',
+        8: 'b',
+        9: 'g',
+    }
+    old_str = str(number)
+    new_str = ''
+    if type(number) == int:
+        for n in old_str:
+            new_str += str(number_dict[int(n)])
+        return new_str
+
 def is_ascii(word):
     if type(word) == str:
         for letter in word:
@@ -101,6 +121,7 @@ def get_sobrenomes():
     # print(not_ascii)
     return sobrenomes
 
+
 def get_americans_lastnames():
     driver = init_chrome_driver(True, True, "https://www.rong-chang.com/namesdict/100_last_names.htm")
     links = driver.find_elements_by_tag_name("a")
@@ -109,6 +130,7 @@ def get_americans_lastnames():
         if link.get_attribute("href").find("dictionary") != -1:
             lastnames.append(link.get_property("innerText").title())
     return lastnames
+
 
 def get_br_male_names():
     driver = init_chrome_driver(True, True, "http://nomesportugueses.blogspot.com/p/nomes-masculinos-z_28.html")
@@ -119,6 +141,7 @@ def get_br_male_names():
             names.append(item.get_property("innerText").title())
     return names
 
+
 def get_br_female_names():
     driver = init_chrome_driver(True, True, "http://nomesportugueses.blogspot.com/p/nomes-brasileiros-de-z.html")
     itens = driver.find_elements_by_tag_name('li')
@@ -127,6 +150,7 @@ def get_br_female_names():
         if item.get_property("innerText").count(" ") == 0:
             names.append(item.get_property("innerText").title())
     return names
+
 
 def get_us_male_names():
     driver = init_chrome_driver(True, True, "https://names.mongabay.com/male_names.htm")
@@ -139,6 +163,7 @@ def get_us_male_names():
                 names.append(content.title())
     return names
 
+
 def get_us_female_names():
     driver = init_chrome_driver(True, True, "https://names.mongabay.com/baby_names/girls250.html")
     links = driver.find_elements_by_tag_name("td")
@@ -148,6 +173,7 @@ def get_us_female_names():
         if is_ascii(content) and content != " ":
             names.append(content.title())
     return names
+
 
 def write_json_file(name_list, file_name, file_format='json'):
     if type(file_name) == str and type(name_list) == list:
@@ -168,7 +194,7 @@ def write_json_file(name_list, file_name, file_format='json'):
             index = 1
             name_dict = {}
             for name in name_list:
-                name_dict['sb{0}'.format(index)] = name
+                name_dict['name_{0}_arch'.format(encode_number(index))] = name
                 index += 1
             content = json.dumps(obj=name_dict, ensure_ascii=False)
             file.writelines(content)
@@ -180,11 +206,12 @@ def write_json_file(name_list, file_name, file_format='json'):
     else:
         raise TypeError("Pass a str and a list object.")
 
-def get_and_write(func, filename):
-    function_type = type(lambda x: x +1)
+
+def get_and_write(func, filename, file_format):
+    function_type = type(lambda x: x + 1)
     if type(func) == function_type:
         names_list = func()
-        result = write_json_file(names_list, filename)
+        result = write_json_file(names_list, filename, file_format)
         if result:
             print("success")
         else:
@@ -192,10 +219,11 @@ def get_and_write(func, filename):
     else:
         raise TypeError("Must pass a function.")
 
+
 if __name__ == "__main__":
-    get_and_write(get_sobrenomes, 'br_lastnames')
-    get_and_write(get_americans_lastnames, 'us_lastnames')
-    get_and_write(get_br_male_names, 'br_male_names')
-    get_and_write(get_br_female_names, 'br_female_names')
-    get_and_write(get_us_male_names, 'us_male_names')
-    get_and_write(get_us_female_names, 'us_female_names')
+    get_and_write(get_sobrenomes, 'br_lastnames', 'json')
+    get_and_write(get_americans_lastnames, 'us_lastnames', 'json')
+    get_and_write(get_br_male_names, 'br_male_names', 'json')
+    get_and_write(get_br_female_names, 'br_female_names', 'json')
+    get_and_write(get_us_male_names, 'us_male_names', 'json')
+    get_and_write(get_us_female_names, 'us_female_names', 'json')

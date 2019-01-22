@@ -19,15 +19,15 @@ from http import client
 
 # relative_chromedriver_path = "./../../chromedriver_linux64/chromedriver"
 #
-#
-# def init_chrome_driver(headless=False):
-#
-#     global chromedriver_path
-#     chrome_options = ChromeOptions()
-#     if headless:
-#         chrome_options.add_argument("---headless")
-#     driver = Chrome(executable_path=chromedriver_path,options=chrome_options)
-#     return driver
+
+def init_chrome_driver(headless=False):
+
+    global chromedriver_path
+    chrome_options = ChromeOptions()
+    if headless:
+        chrome_options.add_argument("---headless")
+    driver = Chrome(executable_path=chromedriver_path,options=chrome_options)
+    return driver
 
 
 def create_outlook_email(request, f_name, l_name, password):
