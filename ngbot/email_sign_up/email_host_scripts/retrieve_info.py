@@ -28,6 +28,9 @@ class Person(object):
         self.lastname = lastname
         self.country = country
         self.sex = sex
+        self.day = day
+        self.month = month
+        self.year = year
 
 
 def random_date():
@@ -89,11 +92,13 @@ def set_us_persons():
 
 
 def write_json(file_name, person_dict, file_format="json"):
-    index = 1
-    full_file_name = "{0}{1}.{2}".format(file_name, index, file_format)
+    index = 0
+    i = ''
+    full_file_name = "{0}{1}.{2}".format(file_name, i, file_format)
     while os.path.exists(full_file_name):
         index += 1
-        full_file_name = "{0}{1}.{2}".format(file_name, index, file_format)
+        i = index
+        full_file_name = "{0}{1}.{2}".format(file_name, i, file_format)
     file = open(full_file_name, 'w')
     file.writelines(json.dumps(person_dict, skipkeys=True, ensure_ascii=False, indent=2))
     file.close()
