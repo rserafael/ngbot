@@ -1,6 +1,7 @@
 import os
 import time
-from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from os.path import dirname, abspath, join
 from selenium import webdriver
 from selenium.webdriver import Chrome, ChromeOptions
@@ -8,137 +9,11 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from datetime import datetime
 from http import client
+import sys
+common_base = dirname(abspath(__file__))
+script_base = join(common_base, 'email_host_scripts')
+sys.path.append(script_base)
 
-#Global Variables
-# base_dir_path = dirname(dirname(dirname(abspath(__file__))))
-# chromedriver_path = join(base_dir_path, "chromedriver_linux64/chromedriver")
-# password = 'R$&fakeemail95'
-# f_name = "Anonymous"
-# l_name ="Fakeson"
-#end of global variables
-
-# relative_chromedriver_path = "./../../chromedriver_linux64/chromedriver"
-#
-
-def init_chrome_driver(headless=False):
-
-    global chromedriver_path
-    chrome_options = ChromeOptions()
-    if headless:
-        chrome_options.add_argument("---headless")
-    driver = Chrome(executable_path=chromedriver_path,options=chrome_options)
-    return driver
-
-
-def create_outlook_email(request, f_name, l_name, password):
-    sleep_time = 3
-    # global password
-    # global f_name
-    # global l_name
-    driver = init_chrome_driver()
-    driver.get("https://outlook.live.com/owa/?nlp=1&signup=1")
-
-    #start login
-    login_name_input = driver.find_element_by_id("MemberName")
-    login_name_input.send_keys("justafakemembername")
-    next_button = driver.find_element_by_id("iSignupAction")
-    next_button.click()
-    time.sleep(sleep_time)
-    #end login
-
-    #start password
-    pwd_input = driver.find_element_by_id("PasswordInput")
-    pwd_input.send_keys(password)
-    check_box_input = driver.find_element_by_id("iOptinEmail")
-    check_box_input.click()
-    next_button = driver.find_element_by_id("iSignupAction")
-    next_button.click()
-    time.sleep(sleep_time)
-    #end password
-
-    #user's information
-    first_name = driver.find_element_by_id("FirstName")
-    first_name.send_keys(f_name)
-    last_name = driver.find_element_by_id("LastName")
-    last_name.send_keys(l_name)
-    next_button = driver.find_element_by_id("iSignupAction")
-    next_button.click()
-    time.sleep(sleep_time)
-    #end of user's information
-
-    #start add details
-    country_input = driver.find_element_by_id("Country")
-    country_options = country_input.get_property("options")
-    country_input.send_keys("US")
-    month_input = driver.find_element_by_id("BirthMonth")
-    print("before::month_input.value = {0}".format(month_input.get_property("value")))
-    month_input.send_keys("5")
-    print("after::month_input.value = {0}".format(month_input.get_property("value")))
-    print("after::month_input.value = {0}".format(month_input.get_attribute("value")))
-    actions = ActionChains(driver)
-    actions.move_to_element(month_input)
-    actions.perform()
-    time.sleep(0.1)
-    actions.click(month_input)
-    actions.perform()
-    time.sleep(0.1)
-    actions.key_down(Keys.ARROW_DOWN, month_input)
-    actions.perform()
-    time.sleep(0.1)
-    actions.key_down(Keys.ARROW_DOWN, month_input)
-    actions.perform()
-    print("done 1 ")
-    time.sleep(0.1)
-    actions.context_click(month_input)
-    print("done 2 ")
-    time.sleep(0.1)
-    actions.double_click(month_input)
-    print("done 3 ")
-    time.sleep(0.1)
-
-    print("2 - after::month_input.value = {0}".format(month_input.get_property("value")))
-    print("2 - after::month_input.value = {0}".format(month_input.get_attribute("value")))
-    day_input = driver.find_element_by_id("BirthDay")
-    day_input.send_keys("17")
-    year_input = driver.find_element_by_id("BirthYear")
-    year_input.send_keys("1999")
-    next_button = driver.find_element_by_id("iSignupAction")
-    next_button.click()
-    time.sleep(sleep_time)
-    #end add details
-
-    # #start the image processing
-    # print("we are sleeping")
-    # # id = wlspispHIPBimg04b3f5d579a6b47679e45e3d2b8e49d090
-    # # id2 = wlspispHIPBimg021d5fb6540f941838ad635ff3d93474d0
-    # time.sleep(10000)
-    # elems = driver.find_elements_by_class_name("text-body")
-    # print(len(elems))
-    # img = None
-    # time.sleep(sleep_time*2)
-    # for elem in elems:
-    #     print(elem)
-    #     print(elem.get_property("tagName"))
-    #     if elem.get_property("tagName") == "IMG":
-    #         img = elem
-    # if img != None:
-    #     print("we found it: ")
-    #     print(img.get_property("src"))
-    # else:
-    #     print("there is no img... :(")
-    # time.sleep(sleep_time*2)
-    # #end the image processing
-
-    # Manual Image Processing
-    img_container = driver.find_element_by_id("hipTemplateContainer")
-    if img_container != None:
-        img = img_container.find_element_by_tag_name("img")
-        print("source = {0}".format(img.get_property("src")))
-
-        time.sleep(10000)
-
-    time.sleep(sleep_time)
-    driver.quit()
 
 def create_proton_mail_account(request, username, password, verf_email):
     sign_up_link = "https://mail.protonmail.com/create/new?language=en"
@@ -251,11 +126,36 @@ def create_tutanota_email_account(request, username, password):
     # driver.quit()
     time.sleep(10000)
 
-if __name__ == "__main__":
-    # print("Just a Test")
-    # proton_username = "mariasilvarse"
-    # password = "rsefakeemail95"
-    # verf_email = "rafael.eusebio95@gmail.com"
-    # create_proton_mail_account(None, proton_username, password, verf_email)
-    # create_tutanota_email_account(None, "mariasilvarse", "rsefakeemail95")
-    create_outlook_email(None, f_name, l_name, password)
+def showObj(obj, name):
+    print("---------{0}---------".format(name))
+    for prop in dir(obj):
+        value = eval("obj.{0}".format(prop))
+        prop_type = str(type(value)).replace("class ", "").replace('<', '').replace(">", '')
+        print("({0}) {1}".format(prop_type, prop))
+
+    print("---------{0}---------".format(name))
+
+def get_image_phrase(request, img_url=''):
+    if img_url:
+        return HttpResponse(False)
+    else:
+        return HttpResponse("<div><img src='{0}'/><input type='{1}'/></div>".format(img_url, 'text'))
+
+def create_outlook_email(request, name, lastname, year):
+    showObj(request, name="Request Object")
+    showObj(request.GET, name="GET object")
+    print("content_params = {0}".format(request.content_params))
+    print("method = {0}".format(request.method))
+    print("path = {0}".format(request.path))
+    print("full_path = {0}".format(request.get_full_path()))
+    print("isgay = {0}".format(request.GET.get("isgay")))
+    print("nome = {0}".format(type(request.GET.get("nome"))))
+    response = HttpResponse("What a nice evening...")
+    try:
+        import outlook
+        print("Importação bem sucedida.")
+    except Exception as err:
+        print("Erro durante a importação de um novo módulo.")
+        print(err)
+    # redirect()
+    return response

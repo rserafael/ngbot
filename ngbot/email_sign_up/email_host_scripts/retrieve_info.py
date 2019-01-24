@@ -23,10 +23,11 @@ def get_all_names():
 
 class Person(object):
 
-    def __init__(self, name, lastname, country, sex, day, month, year):
+    def __init__(self, name, lastname, country, country_symbol, sex, day, month, year):
         self.name = name
         self.lastname = lastname
         self.country = country
+        self.country_symbol = country_symbol
         self.sex = sex
         self.day = day
         self.month = month
@@ -51,7 +52,7 @@ def set_br_persons():
         for ln in br_lastnames:
             lastname = br_lastnames[ln]
             day, month, year = random_date()
-            br_males['person{0}'.format(count)] = Person(name, lastname, 'BR', "M", day, month, year).__dict__
+            br_males['person{0}'.format(count)] = Person(name, lastname, 'Brazil', 'BR', "M", day, month, year).__dict__
             count += 1
 
     br_females = {}
@@ -61,7 +62,8 @@ def set_br_persons():
         for ln in br_lastnames:
             lastname = br_lastnames[ln]
             day, month, year = random_date()
-            br_females['person{0}'.format(count)] = Person(name, lastname, 'BR', "F", day, month, year).__dict__
+            br_females['person{0}'.format(count)] = Person(name, lastname, 'Brazil', 'BR', "F", day, month,
+                                                           year).__dict__
             count += 1
     return br_males, br_females
 
@@ -76,7 +78,8 @@ def set_us_persons():
         for ln in us_lastnames:
             lastname = us_lastnames[ln]
             day, month, year = random_date()
-            us_males['person{0}'.format(count)] = Person(name, lastname, 'US', "M", day, month, year).__dict__
+            us_males['person{0}'.format(count)] = Person(name, lastname, 'United States', 'US', "M", day, month,
+                                                         year).__dict__
             count += 1
 
     us_females = {}
@@ -86,7 +89,8 @@ def set_us_persons():
         for ln in us_lastnames:
             lastname = us_lastnames[ln]
             day, month, year = random_date()
-            us_females['person{0}'.format(count)] = Person(name, lastname, 'US', "F", day, month, year).__dict__
+            us_females['person{0}'.format(count)] = Person(name, lastname, 'United States', 'US', "F", day, month,
+                                                           year).__dict__
             count += 1
     return us_males, us_females
 

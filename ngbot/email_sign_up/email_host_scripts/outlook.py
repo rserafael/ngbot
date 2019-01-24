@@ -5,9 +5,13 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
+import json
+import random
 
 base_dir_path = dirname(dirname(dirname(dirname(abspath(__file__)))))
 chromedriver_path = join(base_dir_path, "chromedriver_linux64/chromedriver")
+common_path = dirname(dirname(abspath(__file__)))
+names_collection_path = join(common_path, "names_collection")
 
 
 def init_chrome_driver(headless=False, incognito=False, url=""):
@@ -51,7 +55,6 @@ class OutLook(object):
             return OutLook.create_email(first_name, last_name, permutation=1, additional="ng", number=171)
         return email_address
 
-
     def click_next_button(driver, sleep_interval):
         try:
             next_button = driver.find_element_by_id("iSignupAction")
@@ -61,7 +64,6 @@ class OutLook(object):
         except NoSuchElementException as NoElement:
             print("Não encontramos Next Button.")
             return False
-
 
     def insert_address(driver, email_address, sleep_interval, permutation=2):
         try:
@@ -90,7 +92,6 @@ class OutLook(object):
             print(error)
             print("-------------------------")
             return False
-
 
     def insert_password(driver, password, sleep_interval):
         try:
@@ -122,7 +123,6 @@ class OutLook(object):
             print("--------------------------")
             return False
 
-
     def insert_personal_info(driver, first_name, last_name, sleep_interval):
         try:
             page_title = driver.find_element_by_id("iPageTitle")
@@ -139,7 +139,6 @@ class OutLook(object):
                     return True
                 else:
                     try:
-                        driver = Chrome()
                         alert_error = driver.find_elements_by_class_name("alert-error")
                         count = 0
                         for error in alert_error:
@@ -154,7 +153,6 @@ class OutLook(object):
             print(error)
             print("-----------------")
             return False
-
 
     def select_month(driver, month_input, month):
         try:
@@ -175,7 +173,6 @@ class OutLook(object):
             print(error)
             print("-----------------")
             return False
-
 
     def insert_more_personal_info(driver, country="Brazil", month=4, day=1, year=2001, sleep_interval=0.7):
         try:
@@ -205,133 +202,82 @@ class OutLook(object):
             print("-----------------")
             return False
 
-
     def image_processing(driver):
         try:
+            start_time = datetime.now()
             imgs = driver.find_elements_by_tag_name("img")
-            src_list = []
-            for img in imgs:
-                src_list.append(img.get_attribute("src"))
-            print(src_list)
-            return True
-            # if len(imgs) == 2:
-            #     img = imgs[1]
-            #     print("src = {0}".format(img.get_attribute("src")))
-            #     return True
-            # else:
-            #     print("quantidade de elementos img = {0}".format(len(imgs)))
-            #     return False
+            while True:
+                for img in imgs:
+                    if img.get_attribute("alt").find("Visual Challenge") != -1:
+                        return True, img.get_attribute("src")
+                        break
+                    else:
+                        time.sleep(0.5)
+                        imgs = driver.find_elements_by_tag_name("img")
+                delta_time = datetime.now() - start_time
+                if delta_time.total_seconds() > 30:
+                    return False, None
         except Exception as error:
             print("image_processing: Type: {0}".format(type(error)))
             print(error)
             print("-----------------")
             return False
 
-
-    def create_new_account(driver, email_address, password, first_name, last_name):
+    def create_new_account(driver, email_address, password, first_name, last_name, country, day, month, year):
         start_time = datetime.now()
         sleep_interval = 0.2
         if OutLook.insert_address(driver, email_address, sleep_interval=1):
             if OutLook.insert_password(driver, password, sleep_interval=1):
-                if OutLook.insert_personal_info(driver, first_name, last_name, sleep_interval):
-                    if OutLook.insert_more_personal_info(driver, country="Brazil", month=4, day=1, year=2001,
+                if OutLook.insert_personal_info(driver, first_name, last_name, sleep_interval=1):
+                    if OutLook.insert_more_personal_info(driver, country=country, month=month, day=day, year=year,
                                                          sleep_interval=0.7):
-                        if OutLook.image_processing(driver):
-                            print("Success")
+                        time.sleep(5)
+                        result, img_url = OutLook.image_processing(driver)
+                        if result:
                             print("time spent = {0}".format(datetime.now() - start_time))
-                            return True
-        print("Failure")
-        print("time spent = {0}".format(datetime.now() - start_time))
-        return False
-
-
-def create_outlook_email(request, f_name, l_name, password):
-    sleep_time = 3
-    # global password
-    # global f_name
-    # global l_name
-    driver = init_chrome_driver()
-    driver.get("https://outlook.live.com/owa/?nlp=1&signup=1")
-
-    # start login
-    login_name_input = driver.find_element_by_id("MemberName")
-    login_name_input.send_keys("justafakemembername")
-    next_button = driver.find_element_by_id("iSignupAction")
-    next_button.click()
-    time.sleep(sleep_time)
-    # end login
-
-    # start password
-    pwd_input = driver.find_element_by_id("PasswordInput")
-    pwd_input.send_keys(password)
-    check_box_input = driver.find_element_by_id("iOptinEmail")
-    check_box_input.click()
-    next_button = driver.find_element_by_id("iSignupAction")
-    next_button.click()
-    time.sleep(sleep_time)
-    # end password
-
-    # user's information
-    first_name = driver.find_element_by_id("FirstName")
-    first_name.send_keys(f_name)
-    last_name = driver.find_element_by_id("LastName")
-    last_name.send_keys(l_name)
-    next_button = driver.find_element_by_id("iSignupAction")
-    next_button.click()
-    time.sleep(sleep_time)
-    # end of user's information
-
-    # start add details
-    country_input = driver.find_element_by_id("Country")
-    country_options = country_input.get_property("options")
-    country_input.send_keys("US")
-    month_input = driver.find_element_by_id("BirthMonth")
-    print("before::month_input.value = {0}".format(month_input.get_property("value")))
-    month_input.send_keys("5")
-    print("after::month_input.value = {0}".format(month_input.get_property("value")))
-    print("after::month_input.value = {0}".format(month_input.get_attribute("value")))
-    actions = ActionChains(driver)
-    actions.move_to_element(month_input)
-    actions.perform()
-    time.sleep(0.1)
-    actions.click(month_input)
-    actions.perform()
-    time.sleep(0.1)
-    actions.key_down(Keys.ARROW_DOWN, month_input)
-    actions.perform()
-    time.sleep(0.1)
-    actions.key_down(Keys.ARROW_DOWN, month_input)
-    actions.perform()
-    print("done 1 ")
-    time.sleep(0.1)
-    actions.context_click(month_input)
-    print("done 2 ")
-    time.sleep(0.1)
-    actions.double_click(month_input)
-    print("done 3 ")
-    time.sleep(0.1)
-    print("2 - after::month_input.value = {0}".format(month_input.get_property("value")))
-    print("2 - after::month_input.value = {0}".format(month_input.get_attribute("value")))
-    day_input = driver.find_element_by_id("BirthDay")
-    day_input.send_keys("17")
-    year_input = driver.find_element_by_id("BirthYear")
-    year_input.send_keys("1999")
-    next_button = driver.find_element_by_id("iSignupAction")
-    next_button.click()
-    time.sleep(sleep_time)
-    # end add details
-
-    # Manual Image Processing
+                            return True, img_url
+                        else:
+                            print("time spent = {0}".format(datetime.now() - start_time))
+                            return False, "Erro no image_processing"
+                    else:
+                        print("time spent = {0}".format(datetime.now() - start_time))
+                        return False, "Erro no insert_more_personal_info"
+                else:
+                    print("time spent = {0}".format(datetime.now() - start_time))
+                    return False, "Erro no insert_personal_info"
+            else:
+                print("time spent = {0}".format(datetime.now() - start_time))
+                return False, "Erro no insert_password"
+        else:
+            print("time spent = {0}".format(datetime.now() - start_time))
+            return False, "Erro no insert_address"
 
 
 if __name__ == "__main__":
-    driver = init_chrome_driver(False, False, "https://outlook.live.com/owa/?nlp=1&signup=1")
+
     password = "R$&fakeemail95"
-    first_name = 'Maria'
-    last_name = "Rosario"
-    country = "Brazil",
-    month = 4
-    day = 1
-    year = '2001'
-    email_address = OutLook.create_email(first_name, last_name, year)
-    OutLook.create_new_account(driver, email_address, password, first_name, last_name)
+    us_females = json.load(open("./../names_collection/us_females.json", "r"))
+    keys = []
+    for n in us_females.keys():
+        keys.append(n)
+    choice = random.choice(keys)
+    print(choice)
+    female = us_females[choice]
+    print(female)
+    driver = init_chrome_driver(True, True, "https://outlook.live.com/owa/?nlp=1&signup=1")
+    result1, result2 = OutLook.create_new_account(driver,
+                               OutLook.create_email(
+                                   female['name'],
+                                   female['lastname'],
+                                   number=random.choice([female['day'], female['month'], female['year']])),
+                               password,
+                               female['name'],
+                               female['lastname'],
+                               female['country'], female['day'],
+                               female['month'], female['year'])
+    if result1:
+        print("Success")
+        print(result2)
+    else:
+        print("Failure")
+        print(result2)
