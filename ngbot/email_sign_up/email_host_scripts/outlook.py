@@ -235,7 +235,7 @@ class OutLook(object):
                         result, img_url = OutLook.image_processing(driver)
                         if result:
                             print("time spent = {0}".format(datetime.now() - start_time))
-                            return True, img_url
+                            return True, img_url, driver
                         else:
                             print("time spent = {0}".format(datetime.now() - start_time))
                             return False, "Erro no image_processing"
@@ -252,32 +252,41 @@ class OutLook(object):
             print("time spent = {0}".format(datetime.now() - start_time))
             return False, "Erro no insert_address"
 
+    def create_rand_us_female_account(self=None):
+        # Talvez deva ser uma nova classe:
+        password = "R$&fakeemail95"
+        us_female_json = join(dirname(dirname(abspath(__file__))), 'names_collection/us_females.json')
+        print(us_female_json)
+        us_females = json.load(open(us_female_json, "r"))
+        keys = []
+        for n in us_females.keys():
+            keys.append(n)
+        choice = random.choice(keys)
+        female = us_females[choice]
+        # Uma classe estática que se chama Persons
+        print(female)
+        driver = init_chrome_driver(True, True, "https://outlook.live.com/owa/?nlp=1&signup=1")
+        result, var1, var2 = OutLook.create_new_account(driver,
+                                            OutLook.create_email(
+                                                female['name'],
+                                                female['lastname'],
+                                                number=random.choice(
+                                                    [female['day'], female['month'], female['year']])),
+                                            password,
+                                            female['name'],
+                                            female['lastname'],
+                                            female['country'], female['day'],
+                                            female['month'], female['year'])
+        if result:
+            return var1, var2
+        else:
+            return False, var1
+
 
 if __name__ == "__main__":
-
-    password = "R$&fakeemail95"
-    us_females = json.load(open("./../names_collection/us_females.json", "r"))
-    keys = []
-    for n in us_females.keys():
-        keys.append(n)
-    choice = random.choice(keys)
-    print(choice)
-    female = us_females[choice]
-    print(female)
-    driver = init_chrome_driver(True, True, "https://outlook.live.com/owa/?nlp=1&signup=1")
-    result1, result2 = OutLook.create_new_account(driver,
-                               OutLook.create_email(
-                                   female['name'],
-                                   female['lastname'],
-                                   number=random.choice([female['day'], female['month'], female['year']])),
-                               password,
-                               female['name'],
-                               female['lastname'],
-                               female['country'], female['day'],
-                               female['month'], female['year'])
-    if result1:
+    img_url, current_url = OutLook.create_rand_us_female_account()
+    if img_url != False:
         print("Success")
-        print(result2)
+        print(img_url)
     else:
         print("Failure")
-        print(result2)

@@ -10,6 +10,8 @@ from selenium.webdriver.common.keys import Keys
 from datetime import datetime
 from http import client
 import sys
+import random
+
 common_base = dirname(abspath(__file__))
 script_base = join(common_base, 'email_host_scripts')
 sys.path.append(script_base)
@@ -43,7 +45,7 @@ def create_proton_mail_account(request, username, password, verf_email):
         verf_email_input.send_keys(verf_email)
         verf_email_input.submit()
 
-        #finish section
+        # finish section
         finish_btn = driver.find_element_by_id("")
 
     except Exception as err:
@@ -53,6 +55,7 @@ def create_proton_mail_account(request, username, password, verf_email):
         driver.quit()
     time.sleep(100)
     # driver.quit()
+
 
 def create_tutanota_email_account(request, username, password):
     driver = init_chrome_driver(False)
@@ -66,17 +69,17 @@ def create_tutanota_email_account(request, username, password):
         elements = driver.find_elements_by_class_name("dialog-header")
         count = 0
         for elem in elements:
-            count+=1
+            count += 1
             if elem.get_attribute("innerText").find("Free") != -1:
                 div = elem
     if div == None:
         raise Exception("Não foi possível achar o botão de free account.")
     else:
         try:
-            file = open("./tutanota_script.js","r")
+            file = open("./tutanota_script.js", "r")
             script = ""
             for line in file.readlines():
-                script+="\n"+line
+                script += "\n" + line
             # print("script: \n {0}".format(script))
             if script != "":
                 time.sleep(2)
@@ -108,7 +111,8 @@ def create_tutanota_email_account(request, username, password):
                         response = conn.getresponse()
                         print("response = {0}".format(response.read()))
                 else:
-                    print("length of 'dialog-header' elements = {0}".format(len(driver.find_elements_by_class_name("dialog-header"))))
+                    print("length of 'dialog-header' elements = {0}".format(
+                        len(driver.find_elements_by_class_name("dialog-header"))))
                     try:
                         driver.switch_to.alert.accept()
                         # driver.switch_to.
@@ -126,36 +130,42 @@ def create_tutanota_email_account(request, username, password):
     # driver.quit()
     time.sleep(10000)
 
+
 def showObj(obj, name):
     print("---------{0}---------".format(name))
     for prop in dir(obj):
         value = eval("obj.{0}".format(prop))
         prop_type = str(type(value)).replace("class ", "").replace('<', '').replace(">", '')
         print("({0}) {1}".format(prop_type, prop))
-
     print("---------{0}---------".format(name))
 
-def get_image_phrase(request, img_url=''):
-    if img_url:
-        return HttpResponse(False)
+
+def get_verification_image(request, img_url='', driver_key=''):
+    if img_url == '':
+        return HttpResponse('not founded ')
     else:
+        print("img_url = {0}".format(img_url))
+        print("driver = {0}".format(driver_key))
         return HttpResponse("<div><img src='{0}'/><input type='{1}'/></div>".format(img_url, 'text'))
 
-def create_outlook_email(request, name, lastname, year):
-    showObj(request, name="Request Object")
-    showObj(request.GET, name="GET object")
-    print("content_params = {0}".format(request.content_params))
-    print("method = {0}".format(request.method))
-    print("path = {0}".format(request.path))
-    print("full_path = {0}".format(request.get_full_path()))
-    print("isgay = {0}".format(request.GET.get("isgay")))
-    print("nome = {0}".format(type(request.GET.get("nome"))))
-    response = HttpResponse("What a nice evening...")
-    try:
-        import outlook
-        print("Importação bem sucedida.")
-    except Exception as err:
-        print("Erro durante a importação de um novo módulo.")
-        print(err)
-    # redirect()
-    return response
+
+def create_outlook_email(request):
+    if request.method == "GET":
+        print(sys.path)
+        try:
+            from outlook import OutLook
+            print("Importação bem sucedida.")
+            var1, var2 = OutLook.create_rand_us_female_account()
+            if var1 != False:
+                driver_key = 'driver' + str(round(random.random()*10))
+                request.session[driver_key] = var2
+                # return redirect("/getverificationimage/'{0}'/'{1}'/".format(var1))
+                return redirect('get_verification_image', img_url=var1, driver_key=var2)
+            else:
+                return HttpResponse("var1 deu false.")
+        except Exception as err:
+            print("Erro: {0}.".format(type(err)))
+            print(err)
+            return HttpResponse("Deu um erro.")
+    else:
+        return HttpResponse("Method Tried = {0}.\nMethod Allowed = GET".format(request.method, ))
