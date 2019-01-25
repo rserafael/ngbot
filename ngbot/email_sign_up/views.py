@@ -141,16 +141,16 @@ def showObj(obj, name):
     print("---------{0}---------".format(name))
 
 
-def get_verification_image(request, img_url='', driver_key=''):
-    if img_url == '':
-        return HttpResponse('not founded ')
+def get_verification_image(request, img_url=None):
+    if img_url == None:
+        return HttpResponse('<div><h1>Erro: Image não encontrada!</h1></div>')
     else:
         print("img_url = {0}".format(img_url))
-        print("driver = {0}".format(driver_key))
-        return HttpResponse("<div><img src={0} alt/><input type='{1}'/></div>".format(img_url, 'text'))
+        return HttpResponse(
+            "<div><img src={0} alt='verification image'/><input type='{1}' width=50/></div>".format(img_url, 'text'))
 
 
-def start_driver_activity(session,img_key):
+def start_driver_activity(session, img_key):
     try:
         from outlook import OutLook
         print("Importação bem sucedida.")
@@ -176,7 +176,8 @@ def start_driver_activity(session,img_key):
 def create_outlook_email(request):
     if request.method == "GET":
         img_key = 'driver123'
-        a = threading.Thread(target=start_driver_activity, name="Driver_Thread", daemon=True, session=request.session, img_key='driver123')
+        a = threading.Thread(target=start_driver_activity, name="Driver_Thread", daemon=True, session=request.session,
+                             img_key='driver123')
         a.start()
         time.sleep(20)
         return redirect(
