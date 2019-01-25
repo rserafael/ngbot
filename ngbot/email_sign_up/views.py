@@ -150,7 +150,7 @@ def get_verification_image(request, img_url='', driver_key=''):
         return HttpResponse("<div><img src={0} alt/><input type='{1}'/></div>".format(img_url, 'text'))
 
 
-def start_driver_activity(session, ):
+def start_driver_activity(session,img_key):
     try:
         from outlook import OutLook
         print("Importação bem sucedida.")
@@ -158,7 +158,7 @@ def start_driver_activity(session, ):
         if var1 != False:
             img_url = var1
             driver = var2
-            session['img_url'] = img_url
+            session[img_key] = img_url
             time.sleep(100)
             driver.quit()
         else:
@@ -175,7 +175,11 @@ def start_driver_activity(session, ):
 
 def create_outlook_email(request):
     if request.method == "GET":
+        img_key = 'driver123'
+        a = threading.Thread(target=start_driver_activity, name="Driver_Thread", daemon=True, session=request.session, img_key='driver123')
+        a.start()
+        time.sleep(20)
         return redirect(
-            "http://localhost:8000/createemail/getverificationimage/'{0}'/'{1}'/".format(url_key, driver_key))
+            "http://localhost:8000/createemail/getverificationimage/{0}".format(img_key))
     else:
         return HttpResponse("Method Tried = {0}.\nMethod Allowed = GET".format(request.method))
