@@ -176,8 +176,9 @@ def start_driver_activity(session, img_key):
 def create_outlook_email(request):
     if request.method == "GET":
         img_key = 'driver123'
-        a = threading.Thread(target=start_driver_activity, name="Driver_Thread", daemon=True, session=request.session,
-                             img_key='driver123')
+        a = threading.Thread(target=start_driver_activity, name="Driver_Thread", daemon=True,
+                             kwargs={'session': request.session,
+                                     'img_key': 'driver123'})
         a.start()
         time.sleep(20)
         return redirect(
