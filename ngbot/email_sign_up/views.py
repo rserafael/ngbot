@@ -141,11 +141,27 @@ def showObj(obj, name):
     print("---------{0}---------".format(name))
 
 
-def get_verification_image(request, img_url=None):
-    if img_url == None:
+def get_verification_image(request, img_key=None):
+    if img_key == None:
         return HttpResponse('<div><h1>Erro: Image não encontrada!</h1></div>')
     else:
-        print("img_url = {0}".format(img_url))
+        tries = 0
+        while True:
+            try:
+                img_url = request.session[img_key]
+                print("img_url achada = {0}".format(img_url))
+                if img_url.find("http") != -1:
+                    print("founded")
+                    break
+                else:
+                    time.sleep(3)
+                    tries+=1
+                    print("count: {0}".format(tries))
+                break
+            except Exception as err:
+                time.sleep(3)
+                tries += 1
+                print("count: {0}".format(tries))
         return HttpResponse(
             "<div><img src={0} alt='verification image'/><input type='{1}' width=50/></div>".format(img_url, 'text'))
 
@@ -159,6 +175,7 @@ def start_driver_activity(session, img_key):
             img_url = var1
             driver = var2
             session[img_key] = img_url
+            print("session configurada: {0}".format(session[img_key]))
             time.sleep(100)
             driver.quit()
         else:
@@ -180,7 +197,6 @@ def create_outlook_email(request):
                              kwargs={'session': request.session,
                                      'img_key': 'driver123'})
         a.start()
-        time.sleep(20)
         return redirect(
             "http://localhost:8000/createemail/getverificationimage/{0}".format(img_key))
     else:
