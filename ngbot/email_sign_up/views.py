@@ -1,5 +1,3 @@
-import os
-import time
 from django.shortcuts import redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from os.path import dirname, abspath, join
@@ -11,6 +9,9 @@ from datetime import datetime
 from http import client
 import sys
 import random
+import threading
+import os
+import time
 
 common_base = dirname(abspath(__file__))
 script_base = join(common_base, 'email_host_scripts')
@@ -146,26 +147,35 @@ def get_verification_image(request, img_url='', driver_key=''):
     else:
         print("img_url = {0}".format(img_url))
         print("driver = {0}".format(driver_key))
-        return HttpResponse("<div><img src='{0}'/><input type='{1}'/></div>".format(img_url, 'text'))
+        return HttpResponse("<div><img src={0} alt/><input type='{1}'/></div>".format(img_url, 'text'))
+
+
+def start_driver_activity(session, ):
+    try:
+        from outlook import OutLook
+        print("Importação bem sucedida.")
+        var1, var2 = OutLook.create_rand_us_female_account()
+        if var1 != False:
+            img_url = var1
+            driver = var2
+            session['img_url'] = img_url
+            time.sleep(100)
+            driver.quit()
+        else:
+            print("deu merda...")
+    except RuntimeError as rerror:
+        print("at RuntimeError: {0}".format(type(rerror)))
+        print(rerror)
+        print("--------------------------------")
+    except BaseException as error:
+        print("at BaseException: {0}".format(type(error)))
+        print(error)
+        print("--------------------------------")
 
 
 def create_outlook_email(request):
     if request.method == "GET":
-        print(sys.path)
-        try:
-            from outlook import OutLook
-            print("Importação bem sucedida.")
-            var1, var2 = OutLook.create_rand_us_female_account()
-            if var1 != False:
-                driver_key = 'driver' + str(round(random.random()*10))
-                request.session[driver_key] = var2
-                # return redirect("/getverificationimage/'{0}'/'{1}'/".format(var1))
-                return redirect('get_verification_image', img_url=var1, driver_key=var2)
-            else:
-                return HttpResponse("var1 deu false.")
-        except Exception as err:
-            print("Erro: {0}.".format(type(err)))
-            print(err)
-            return HttpResponse("Deu um erro.")
+        return redirect(
+            "http://localhost:8000/createemail/getverificationimage/'{0}'/'{1}'/".format(url_key, driver_key))
     else:
-        return HttpResponse("Method Tried = {0}.\nMethod Allowed = GET".format(request.method, ))
+        return HttpResponse("Method Tried = {0}.\nMethod Allowed = GET".format(request.method))

@@ -265,7 +265,7 @@ class OutLook(object):
         female = us_females[choice]
         # Uma classe estática que se chama Persons
         print(female)
-        driver = init_chrome_driver(True, True, "https://outlook.live.com/owa/?nlp=1&signup=1")
+        driver = init_chrome_driver(False, True, "https://outlook.live.com/owa/?nlp=1&signup=1")
         result, var1, var2 = OutLook.create_new_account(driver,
                                             OutLook.create_email(
                                                 female['name'],
