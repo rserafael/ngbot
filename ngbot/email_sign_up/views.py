@@ -12,6 +12,7 @@ import random
 import threading
 import os
 import time
+import json
 
 common_base = dirname(abspath(__file__))
 script_base = join(common_base, 'email_host_scripts')
@@ -147,7 +148,12 @@ def set_verification_text(request, verification_text=None):
     else:
         request.session['verificationtext'] = verification_text
         return JsonResponse({'erro': False, })
-
+def get_verification_text(request):
+    request.session['verificationtext'] = 'empty'
+    if request.session['verificationtext'] == 'empty':
+        return JsonResponse({'ready': False})
+    else:
+        return JsonResponse({'ready': True, 'text':request.session['verificationtext'] })
 
 def get_verification_image(request, img_key='driver123'):
     if img_key == None:
