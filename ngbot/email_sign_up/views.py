@@ -141,42 +141,41 @@ def showObj(obj, name):
     print("---------{0}---------".format(name))
 
 
-def get_verification_image(request, img_key=None):
-    if img_key == None:
-        return HttpResponse('<div><h1>Erro: Image não encontrada!</h1></div>')
+def set_verification_text(request, verification_text=None):
+    if verification_text == None:
+        return JsonResponse({'erro': True})
     else:
-        tries = 0
-        while True:
-            try:
-                img_url = request.session[img_key]
-                print("img_url achada = {0}".format(img_url))
-                if img_url.find("http") != -1:
-                    print("founded")
-                    break
-                else:
-                    time.sleep(3)
-                    tries+=1
-                    print("count: {0}".format(tries))
-                break
-            except Exception as err:
-                time.sleep(3)
-                tries += 1
-                print("count: {0}".format(tries))
-        return HttpResponse(
-            "<div><img src={0} alt='verification image'/><input type='{1}' width=50/></div>".format(img_url, 'text'))
+        request.session['verificationtext'] = verification_text
+        return JsonResponse({'erro': False, })
+
+
+def get_verification_image(request, img_key='driver123'):
+    if img_key == None:
+        return JsonResponse({'erro': True})
+    else:
+        return JsonResponse({'erro': False, 'src': request.session[img_key]})
 
 
 def start_driver_activity(session, img_key):
     try:
         from outlook import OutLook
-        print("Importação bem sucedida.")
         var1, var2 = OutLook.create_rand_us_female_account()
         if var1 != False:
             img_url = var1
             driver = var2
             session[img_key] = img_url
-            print("session configurada: {0}".format(session[img_key]))
-            time.sleep(100)
+            print("request.session is setted.")
+            print("request.session = {0}".format(session[img_key]))
+            time.sleep(10)
+            tries = 0
+            while True:
+                if session['verificationtext'] == 'empty':
+                    tries += 1
+                    print("counting: {0}".format(tries))
+                    time.sleep(10)
+                else:
+                    print("found verification = {0}".format(session['verificationtext']))
+                    break
             driver.quit()
         else:
             print("deu merda...")
@@ -193,11 +192,24 @@ def start_driver_activity(session, img_key):
 def create_outlook_email(request):
     if request.method == "GET":
         img_key = 'driver123'
+        request.session[img_key] = 'empty'
+        request.session['verificationtext'] = 'empty'
         a = threading.Thread(target=start_driver_activity, name="Driver_Thread", daemon=True,
                              kwargs={'session': request.session,
                                      'img_key': 'driver123'})
         a.start()
-        return redirect(
-            "http://localhost:8000/createemail/getverificationimage/{0}".format(img_key))
+        while True:
+            if request.session[img_key] == 'empty':
+                time.sleep(10)
+            else:
+                print("found")
+                print(request.session[img_key])
+                break
+        f = open(join(common_base, 'verification_image.html'), 'r')
+        html_page=''
+        for line in f.readlines():
+            html_page+=line
+
+        return HttpResponse(html_page)
     else:
         return HttpResponse("Method Tried = {0}.\nMethod Allowed = GET".format(request.method))

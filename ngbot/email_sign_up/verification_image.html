@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <img src={0} alt="verification_image" id="verf-img"/>
+    <br/>
+    <input type="text" width="300px" id="verf-text"/>
+    <br/>
+    <input type="submit" id="submit-btn"/>
+</body>
+<script>
+    window.onload = function(){
+        function submitText(event){
+            var verfText = document.getElementById('verf-text').value;
+            event.preventDefault();
+            var url  =`http://localhost:8000/createemail/setverftext/${verfText}/`;
+            console.log(url);
+            fetch(url)
+                .then(response=>response.json())
+                .then(
+                    (json)=>{
+                        if(json.erro){
+                            alert("Foi um fracasso");
+                        }
+                        else{
+                            alert("foi um sucesso");
+                        }
+                    }
+                )
+                .catch(
+                    (err)=>{
+                        alert("errro");
+                        console.log(err);
+                    }
+                )
+        }
+        console.log(submitText);
+        var submitBtn = document.getElementById("submit-btn");
+        submitBtn.onclick=function(event){
+            submitText(event);
+        };
+        function getImg(){
+            fetch("http://localhost:8000/createemail/getverfimg/driver123")
+                .then(
+                    response=>response.json()
+                )
+                .then(
+                    (json)=>{
+                        if(json.erro){
+                            alert("erro")
+                        }
+                        else{
+                            console.log(json)
+                            console.log(json.src)
+                            console.log('deu certo')
+                            var img = document.getElementById("verf-img").setAttribute('src', json.src)
+                        }
+                    }
+                )
+                .catch(
+                    (erro)=>{
+                        console.log(erro)
+                    }
+                )
+
+        }
+        getImg();
+    }
+
+</script>
+</html>
