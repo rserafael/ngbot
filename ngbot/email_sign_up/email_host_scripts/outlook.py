@@ -265,7 +265,7 @@ class OutLook(object):
         female = us_females[choice]
         # Uma classe estática que se chama Persons
         print(female)
-        driver = init_chrome_driver(True, True, "https://outlook.live.com/owa/?nlp=1&signup=1")
+        driver = init_chrome_driver(False, False, "https://outlook.live.com/owa/?nlp=1&signup=1")
         result, var1, var2 = OutLook.create_new_account(driver,
                                             OutLook.create_email(
                                                 female['name'],
@@ -282,6 +282,20 @@ class OutLook(object):
         else:
             return False, var1
 
+    def insert_verification_text(driver, verf_text=''):
+        inputs = driver.find_elements_by_tag_name("input")
+        print("numbers of inputs: {0}".format(len(inputs)))
+        for input in inputs:
+            id = input.get_attribute("id")
+            if id.find("Solution"):
+                print("we found it")
+                input.send_keys(verf_text)
+                OutLook.click_next_button(driver, 2)
+                return True
+            else:
+                print("not yet: {0}".format(id))
+                return False
+        return False
 
 if __name__ == "__main__":
     img_url, current_url = OutLook.create_rand_us_female_account()
