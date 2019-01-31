@@ -7,11 +7,18 @@ from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
 import json
 import random
+import sys
 
 base_dir_path = dirname(dirname(dirname(dirname(abspath(__file__)))))
-chromedriver_path = join(base_dir_path, "chromedriver_linux64/chromedriver")
 common_path = dirname(dirname(abspath(__file__)))
+
+chromedriver_path = join(base_dir_path, "chromedriver_linux64/chromedriver")
 names_collection_path = join(common_path, "names_collection")
+
+br_males_json_path = join(names_collection_path, 'br_males.json')
+br_females_json_path = join(names_collection_path, 'br_females.json')
+us_males_json_path = join(names_collection_path, 'us_males.json')
+us_females_json_path = join(names_collection_path, 'us_females.json')
 
 
 def init_chrome_driver(headless=False, incognito=False, url=""):
@@ -35,9 +42,9 @@ class OutLook(object):
         raise Exception("")
 
     def create_email(first_name, last_name, permutation=1, additional="ng", number=10):
-        first_name = first_name.lower()
-        last_name = last_name.lower()
-        additional = additional.lower()
+        first_name = first_name.lower().replace(" ", '')
+        last_name = last_name.lower().replace(" ", '')
+        additional = additional.lower().replace(" ", '')
         email_address = None
         if permutation == 1:
             email_address = "{0}.{1}.{2}{3}".format(first_name, last_name, additional, number)
@@ -215,7 +222,7 @@ class OutLook(object):
                         time.sleep(0.5)
                         imgs = driver.find_elements_by_tag_name("img")
                 delta_time = datetime.now() - start_time
-                if delta_time.total_seconds() > 30:
+                if delta_time.total_seconds() > 100:
                     return False, None
         except Exception as error:
             print("image_processing: Type: {0}".format(type(error)))
@@ -238,49 +245,19 @@ class OutLook(object):
                             return True, img_url, driver
                         else:
                             print("time spent = {0}".format(datetime.now() - start_time))
-                            return False, "Erro no image_processing"
+                            return False, "Erro no image_processing", None
                     else:
                         print("time spent = {0}".format(datetime.now() - start_time))
-                        return False, "Erro no insert_more_personal_info"
+                        return False, "Erro no insert_more_personal_info", None
                 else:
                     print("time spent = {0}".format(datetime.now() - start_time))
-                    return False, "Erro no insert_personal_info"
+                    return False, "Erro no insert_personal_info", None
             else:
                 print("time spent = {0}".format(datetime.now() - start_time))
-                return False, "Erro no insert_password"
+                return False, "Erro no insert_password", None
         else:
             print("time spent = {0}".format(datetime.now() - start_time))
-            return False, "Erro no insert_address"
-
-    def create_rand_us_female_account(self=None):
-        # Talvez deva ser uma nova classe:
-        password = "R$&fakeemail95"
-        us_female_json = join(dirname(dirname(abspath(__file__))), 'names_collection/us_females.json')
-        print(us_female_json)
-        us_females = json.load(open(us_female_json, "r"))
-        keys = []
-        for n in us_females.keys():
-            keys.append(n)
-        choice = random.choice(keys)
-        female = us_females[choice]
-        # Uma classe estática que se chama Persons
-        print(female)
-        driver = init_chrome_driver(False, False, "https://outlook.live.com/owa/?nlp=1&signup=1")
-        result, var1, var2 = OutLook.create_new_account(driver,
-                                            OutLook.create_email(
-                                                female['name'],
-                                                female['lastname'],
-                                                number=random.choice(
-                                                    [female['day'], female['month'], female['year']])),
-                                            password,
-                                            female['name'],
-                                            female['lastname'],
-                                            female['country'], female['day'],
-                                            female['month'], female['year'])
-        if result:
-            return var1, var2
-        else:
-            return False, var1
+            return False, "Erro no insert_address", None
 
     def insert_verification_text(driver, verf_text=''):
         inputs = driver.find_elements_by_tag_name("input")
@@ -297,10 +274,56 @@ class OutLook(object):
                 return False
         return False
 
-if __name__ == "__main__":
-    img_url, current_url = OutLook.create_rand_us_female_account()
-    if img_url != False:
-        print("Success")
-        print(img_url)
-    else:
-        print("Failure")
+    def create_random_person(sex='', country='', password='R$&contafalsa95'):
+        driver = init_chrome_driver(False, True, "https://outlook.live.com/owa/?nlp=1&signup=1")
+        names_json_path = Account.get_person_json(sex, country)
+        names_json = json.load(open(names_json_path, "r"))
+        rand_key = Account.get_a_random_key(list(names_json.keys()))
+        person = names_json[rand_key]
+        print("person: ")
+        print(person)
+        email = OutLook.create_email(person['name'], person['lastname'],
+                                     number=random.choice([person['day'], person['month'], person['year']]))
+        result, img_url, driver = OutLook.create_new_account(driver,email, password, person['name'],
+                                                        person['lastname'], person['country'], person['day'],
+                                                        person['month'], person['year'])
+        if result:
+            person['email'] = email
+            person['password'] = password+"@outlook.com"
+            return result, img_url, driver, person
+        else:
+            print("create_random_person: ")
+            print(img_url)
+            return result, None, None, None
+
+
+class Account(object):
+    def __init__(self):
+        raise NotImplementedError("This Class is an static class.")
+
+    def get_a_random_key(keys):
+        key = random.choice(keys)
+        return key
+
+    def get_person_json(sex="", country=''):
+
+        global us_females_json_path, us_males_json_path, br_females_json_path, br_males_json_path
+        json_paths = [us_females_json_path, us_males_json_path, br_females_json_path, br_males_json_path]
+        if sex == 'F':
+            if country == "BR":
+                return br_females_json_path
+            elif country == "US":
+                return us_females_json_path
+            else:
+                return random.choice(json_paths)
+        elif sex == 'M':
+            if country == "BR":
+                return br_males_json_path
+            elif country == "US":
+                return us_males_json_path
+            else:
+                return random.choice(json_paths)
+        else:
+            return random.choice(json_paths)
+
+

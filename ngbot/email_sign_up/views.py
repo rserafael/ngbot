@@ -1,18 +1,6 @@
-from django.shortcuts import redirect
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from os.path import dirname, abspath, join
-from selenium import webdriver
-from selenium.webdriver import Chrome, ChromeOptions
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
-from datetime import datetime
-from http import client
 import sys
-import random
-import threading
-import os
-import time
-import json
 
 common_base = dirname(abspath(__file__))
 script_base = join(common_base, 'email_host_scripts')
@@ -22,8 +10,103 @@ class Eternal(object):
     def __init__(self):
         self.kwargs = {}
 
-jesus = Eternal()
-print("\n\nJESUS HAS BEEN CREATED: TYPE: {0}\n\n".format(type(jesus)))
+ETERNAL = Eternal()
+print("\n\nETERNAL HAS BEEN CREATED\n\n")
+
+
+def showObj(obj, name):
+    print("---------{0}---------".format(name))
+    for prop in dir(obj):
+        value = eval("obj.{0}".format(prop))
+        prop_type = str(type(value)).replace("class ", "").replace('<', '').replace(">", '')
+        print("({0}) {1}".format(prop_type, prop))
+    print("---------{0}---------".format(name))
+
+
+def set_verification_text(request, verification_text=None):
+    if verification_text == None:
+        return JsonResponse({'erro': True})
+    else:
+        ETERNAL.kwargs['verftext'] = verification_text
+        try:
+            from outlook import OutLook
+            result = OutLook.insert_verification_text(ETERNAL.kwargs['driver'], verification_text)
+            if result:
+                from .models import Person
+                person = ETERNAL.kwargs['person']
+                p = Person(firstname=person['name'],
+                           lastname=person['lastname'],
+                           country=person['country_symbol'],
+                           sex=person['sex'],
+                           email=person['email'],
+                           password=person['password'],
+                           day=person['day'],
+                           month=person['month'],
+                           year=person['year'],
+                           emailCreated=True)
+                p.save()
+                print("\n--> Person created.\n")
+                return JsonResponse({'erro': False})
+            else:
+                return JsonResponse({'erro': True})
+        except Exception as err:
+            print("ERRO: {0}".format(type(err)))
+            print(err)
+        return JsonResponse({'erro': True, })
+
+def get_verification_text(request):
+    try:
+        return JsonResponse({'ready': True, 'text':ETERNAL.kwargs['verftext'] })
+    except Exception as err:
+        return HttpResponse("Some exception: Type: {0}, err: {1}".format(type(err), err))
+
+def get_verification_image(request, img_key='driver123'):
+    if img_key == None:
+        return JsonResponse({'erro': True})
+    else:
+        return JsonResponse({'erro': False, 'src': ETERNAL.kwargs['img_url']})
+
+
+def start_driver_activity():
+    method_name = 'start_driver_activity'
+    try:
+        from outlook import OutLook
+
+        result, img_url, driver, person = OutLook.create_random_person()
+        if result != False:
+            ETERNAL.kwargs['driver'] = driver
+            ETERNAL.kwargs['img_url'] = img_url
+            ETERNAL.kwargs['person'] = person
+            return True
+        else:
+            print("{0}: deu merda...".format(method_name))
+            return False
+    except RuntimeError as rerror:
+        print("{0}: at RuntimeError: {1}".format(method_name, type(rerror)))
+        print(rerror)
+        print("--------------------------------")
+        return False
+    except BaseException as error:
+        print("{0}: at BaseException: {1}".format(method_name, type(error)))
+        print(error)
+        print("--------------------------------")
+        return False
+
+def create_outlook_email(request):
+    method_name = "create_outlook_email"
+    if request.method == "GET":
+        result = start_driver_activity()
+        if result:
+            f = open(join(common_base, 'verification_image.html'), 'r')
+            html_page=''
+            for line in f.readlines():
+                html_page+=line
+            return HttpResponse(html_page)
+        else:
+            return HttpResponse("Some thing wrong has happend")
+    else:
+        return HttpResponse("Method Tried = {0}.\nMethod Allowed = GET".format(request.method))
+
 
 # def create_proton_mail_account(request, username, password, verf_email):
 #     sign_up_link = "https://mail.protonmail.com/create/new?language=en"
@@ -137,140 +220,3 @@ print("\n\nJESUS HAS BEEN CREATED: TYPE: {0}\n\n".format(type(jesus)))
 #     # time.sleep(10)
 #     # driver.quit()
 #     time.sleep(10000)
-
-
-def showObj(obj, name):
-    print("---------{0}---------".format(name))
-    for prop in dir(obj):
-        value = eval("obj.{0}".format(prop))
-        prop_type = str(type(value)).replace("class ", "").replace('<', '').replace(">", '')
-        print("({0}) {1}".format(prop_type, prop))
-    print("---------{0}---------".format(name))
-
-
-def set_verification_text(request, verification_text=None):
-    if verification_text == None:
-        return JsonResponse({'erro': True})
-    else:
-        try:
-            from outlook import OutLook
-            result = OutLook.insert_verification_text(jesus.kwargs['driver'], verification_text)
-            if result:
-                return JsonResponse({'erro': False})
-            else:
-                return JsonResponse({'erro': True})
-        except Exception as err:
-            print("ERRO: {0}".format(type(err)))
-            print(err)
-        request.session['verificationtext'] = verification_text
-        print("/setverftext: verficiation text has been setted.")
-        return JsonResponse({'erro': True, })
-
-def get_verification_text(request):
-    try:
-        print("/getverftext: Some is trying to access the verification text.")
-        print("/getverftext: request.session['verificationtext'] = {0}".format(request.session['verificationtext']))
-        if request.session['verificationtext'] == 'empty':
-            return JsonResponse({'ready': False})
-        else:
-
-            return JsonResponse({'ready': True, 'text':request.session['verificationtext']})
-    except Exception as err:
-        print("/getverftext: Some is trying to access the verification text.")
-        print("/getverftext: But an error has occured. Type: {0}".format(type(err)))
-        print(err)
-        print("-----------------------------------------------------------------------------")
-        return HttpResponse("Some exception: Type: {0}, err: {1}".format(type(err), err))
-
-def get_verification_image(request, img_key='driver123'):
-    if img_key == None:
-        return JsonResponse({'erro': True})
-    else:
-        return JsonResponse({'erro': False, 'src': request.session[img_key]})
-
-
-def start_driver_activity(request_obj, img_key):
-    method_name = 'start_driver_activity'
-    try:
-        from outlook import OutLook
-        var1, var2 = OutLook.create_rand_us_female_account()
-        if var1 != False:
-            img_url = var1
-            driver = var2
-            jesus.kwargs['driver'] = driver
-            print("{0}: jesus now has a driver".format(method_name))
-            request_obj.session[img_key] = img_url
-            print("{0}: request.session is setted.".format(method_name))
-            print("{0}: request.session = {1}".format(method_name, request_obj.session[img_key]))
-            return True
-            tries = 0
-            # while True:
-            #     if session['verificationtext'] == 'empty':
-            #         tries += 1
-            #         print("counting: {0}".format(tries))
-            #         time.sleep(10)
-            #     else:
-            #         print("found verification = {0}".format(session['verificationtext']))
-            #         break
-            # while True:
-            #     main_thread = threading.main_thread()
-            #     conn = client.HTTPConnection(host="localhost", port=8000)
-            #     conn.request(method="GET", url="/createemail/getverftext/")
-            #     res = conn.getresponse()
-            #     lines = res.readlines()
-            #     res.close()
-            #     conn.close()
-            #     print("lines:")
-            #     print(len(lines))
-            #     if len(lines) > 0:
-            #         print(lines[0])
-            #     else:
-            #         print("[]")
-            #     print("request.session['verificationtext']: ")
-            #     print(request_obj.session['verificationtext'])
-            #     print("----------------")
-            #     time.sleep(10)
-            # driver.quit()
-        else:
-            print("{0}: deu merda...".format(method_name))
-            return False
-    except RuntimeError as rerror:
-        print("{0}: at RuntimeError: {1}".format(method_name, type(rerror)))
-        print(rerror)
-        print("--------------------------------")
-        return False
-    except BaseException as error:
-        print("{0}: at BaseException: {1}".format(method_name, type(error)))
-        print(error)
-        print("--------------------------------")
-        return False
-
-def create_outlook_email(request):
-    method_name = "create_outlook_email"
-    if request.method == "GET":
-        img_key = 'driver123'
-        request.session[img_key] = 'empty'
-        request.session['verificationtext'] = 'empty'
-        # a = threading.Thread(target=start_driver_activity, name="Driver_Thread", daemon=True,
-        #                      kwargs={'request_obj': request,
-        #                              'img_key': 'driver123'})
-        # a.start()
-        result = start_driver_activity(request, 'driver123')
-        # while True:
-        #     if request.session[img_key] == 'empty':
-        #         time.sleep(10)
-        #     else:
-        #         print("found")
-        #         print(request.session[img_key])
-        #         break
-        if result:
-            f = open(join(common_base, 'verification_image.html'), 'r')
-            html_page=''
-            for line in f.readlines():
-                html_page+=line
-            print("{0}: jesus.kwargs['driver'] = {1}".format(method_name, type(jesus.kwargs['driver'])))
-            return HttpResponse(html_page)
-        else:
-            return HttpResponse("Some thing wrong has happend")
-    else:
-        return HttpResponse("Method Tried = {0}.\nMethod Allowed = GET".format(request.method))

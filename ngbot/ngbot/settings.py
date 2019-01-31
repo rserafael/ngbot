@@ -29,6 +29,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'email_sign_up.apps.EmailSignUpConfig',
+    'ng_controler.apps.NgControlerConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -72,20 +74,24 @@ WSGI_APPLICATION = 'ngbot.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ngbots',
+        'USER': 'rse',
+        'PASSWORD': 'R$&08ubuntu95',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
 # Caches
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache' ,
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '127.0.0.1:11211',
     }
 }
 
-#Session Engine
+# Session Engine
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 
 # Password validation
@@ -123,3 +129,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+

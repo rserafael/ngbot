@@ -5,54 +5,75 @@
     <title>Title</title>
 </head>
 <body>
+<div id="verfitication_div">
     <img src={0} alt="verification_image" id="verf-img"/>
     <br/>
     <input type="text" width="300px" id="verf-text"/>
     <br/>
     <input type="submit" id="submit-btn"/>
+</div>
+<div id="alternative" style="display:none;">
+    <h4>I hope this has worked</h4>
+    <h4 id="message"></h4>
+</div>
 </body>
 <script>
-    window.onload = function(){
-        function submitText(event){
+    window.onload = function () {
+        function submitText(event) {
             var verfText = document.getElementById('verf-text').value;
             event.preventDefault();
-            var url  =`http://localhost:8000/createemail/setverftext/${verfText}/`;
+            var url = `http://localhost:8000/createemail/setverftext/${verfText}/`;
             console.log(url);
+            var interval = setInterval(
+                () => {
+                    message = document.getElementById("message");
+                    if (message.innerText.length < 3) {
+                        message.innerText += ".";
+                    } else {
+                        message.innerText = ".";
+                    }
+                },
+                300
+            );
             fetch(url)
-                .then(response=>response.json())
+                .then(response => response.json())
                 .then(
-                    (json)=>{
-                        if(json.erro){
-                            alert("Foi um fracasso");
-                        }
-                        else{
-                            alert("foi um sucesso");
+                    (json) => {
+                        clearInterval(interval);
+                        if (json.erro) {
+
+                            document.getElementById("message").innerText = "Foi um fracasso";
+                        } else {
+                            document.getElementById("message").innerText = "Foi um sucesso";
                         }
                     }
                 )
                 .catch(
-                    (err)=>{
+                    (err) => {
                         alert("errro");
                         console.log(err);
                     }
-                )
+                );
+            document.getElementById("verfitication_div").style.display = 'none';
+            document.getElementById("alternative").style.display = 'block';
         }
+
         console.log(submitText);
         var submitBtn = document.getElementById("submit-btn");
-        submitBtn.onclick=function(event){
+        submitBtn.onclick = function (event) {
             submitText(event);
         };
-        function getImg(){
+
+        function getImg() {
             fetch("http://localhost:8000/createemail/getverfimg/driver123")
                 .then(
-                    response=>response.json()
+                    response => response.json()
                 )
                 .then(
-                    (json)=>{
-                        if(json.erro){
+                    (json) => {
+                        if (json.erro) {
                             alert("erro")
-                        }
-                        else{
+                        } else {
                             console.log(json)
                             console.log(json.src)
                             console.log('deu certo')
@@ -61,12 +82,13 @@
                     }
                 )
                 .catch(
-                    (erro)=>{
+                    (erro) => {
                         console.log(erro)
                     }
                 )
 
         }
+
         getImg();
     }
 
