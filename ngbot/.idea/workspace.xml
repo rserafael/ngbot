@@ -2,8 +2,8 @@
 <project version="4">
   <component name="BookmarkManager">
     <bookmark url="file://$PROJECT_DIR$/ngbot/settings.py" />
-    <bookmark url="file://$PROJECT_DIR$/email_sign_up/views.py" line="55" />
-    <bookmark url="file://$PROJECT_DIR$/email_sign_up/views.py" line="51" />
+    <bookmark url="file://$PROJECT_DIR$/email_sign_up/views.py" line="69" />
+    <bookmark url="file://$PROJECT_DIR$/email_sign_up/views.py" line="64" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="172b7807-1b1a-4d10-945e-df180d486419" name="Default Changelist" comment="">
@@ -11,14 +11,9 @@
       <change beforePath="$PROJECT_DIR$/../.idea/ngbot.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/ngbot.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../chromedriver_linux64/chromedriver" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/email_sign_up/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/email_sign_up/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/email_sign_up/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/email_sign_up/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ng_controler/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/ng_controler/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ngbot/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/ngbot/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/emailcreation.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/emailcreation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/tools.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/tools.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/verification_image.html" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/verification_image.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/emailcreation.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/emailutils.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -53,8 +48,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ng_controler/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="262">
-              <caret line="102" column="14" lean-forward="true" selection-start-line="102" selection-start-column="14" selection-end-line="102" selection-end-column="14" />
+            <state relative-caret-position="960">
+              <caret line="64" lean-forward="true" selection-start-line="64" selection-end-line="64" />
             </state>
           </provider>
         </entry>
@@ -80,23 +75,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/email_sign_up/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="673">
-              <caret line="105" column="26" selection-start-line="105" selection-start-column="20" selection-end-line="105" selection-end-column="26" />
-              <folding>
-                <element signature="e#0#50#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="225">
+              <caret line="17" column="48" selection-start-line="17" selection-start-column="48" selection-end-line="17" selection-end-column="48" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/utilities/emailcreation.py">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/utilities/instagramutils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="20" column="58" selection-start-line="20" selection-start-column="58" selection-end-line="20" selection-end-column="58" />
+            <state relative-caret-position="172">
+              <caret line="12" column="32" lean-forward="true" selection-start-line="12" selection-start-column="32" selection-end-line="12" selection-end-column="32" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -128,6 +120,7 @@
       <find>outlook</find>
       <find>dirname</find>
       <find>chrome</find>
+      <find>emailcreation</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -142,12 +135,13 @@
         <option value="$PROJECT_DIR$/email_sign_up/models.py" />
         <option value="$PROJECT_DIR$/ng_controler/urls.py" />
         <option value="$PROJECT_DIR$/utilities/tools.py" />
-        <option value="$PROJECT_DIR$/ng_controler/views.py" />
-        <option value="$PROJECT_DIR$/email_sign_up/views.py" />
         <option value="$PROJECT_DIR$/ngbot/urls.py" />
         <option value="$PROJECT_DIR$/email_sign_up/urls.py" />
         <option value="$PROJECT_DIR$/utilities/verification_image.html" />
         <option value="$PROJECT_DIR$/utilities/emailcreation.py" />
+        <option value="$PROJECT_DIR$/utilities/instagramutils.py" />
+        <option value="$PROJECT_DIR$/ng_controler/views.py" />
+        <option value="$PROJECT_DIR$/email_sign_up/views.py" />
       </list>
     </option>
   </component>
@@ -226,7 +220,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utilities/emailcreation.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/utilities/emailutils.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -331,12 +325,12 @@
       <workItem from="1548861249529" duration="2131000" />
       <workItem from="1548873411472" duration="8651000" />
       <workItem from="1548931197080" duration="5873000" />
-      <workItem from="1548949321446" duration="3209000" />
+      <workItem from="1548949321446" duration="3935000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="55046000" />
+    <option name="totallyTimeSpent" value="55772000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="25" width="1299" height="743" extended-state="6" />
@@ -356,7 +350,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50039905" side_tool="true" weight="0.32736155" />
-      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.2882736" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.23778501" />
       <window_info anchor="bottom" id="Python Console" order="12" weight="0.32899022" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -468,13 +462,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ng_controler/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="262">
-          <caret line="102" column="14" lean-forward="true" selection-start-line="102" selection-start-column="14" selection-end-line="102" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/utilities/tools.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="472">
@@ -516,23 +503,37 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/email_sign_up/views.py">
+    <entry file="file://$PROJECT_DIR$/utilities/emailutils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="673">
-          <caret line="105" column="26" selection-start-line="105" selection-start-column="20" selection-end-line="105" selection-end-column="26" />
+        <state relative-caret-position="112">
+          <caret line="275" column="25" selection-start-line="275" selection-start-column="20" selection-end-line="275" selection-end-column="25" />
           <folding>
-            <element signature="e#0#50#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/emailcreation.py">
+    <entry file="file://$PROJECT_DIR$/utilities/instagramutils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="20" column="58" selection-start-line="20" selection-start-column="58" selection-end-line="20" selection-end-column="58" />
+        <state relative-caret-position="172">
+          <caret line="12" column="32" lean-forward="true" selection-start-line="12" selection-start-column="32" selection-end-line="12" selection-end-column="32" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ng_controler/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="960">
+          <caret line="64" lean-forward="true" selection-start-line="64" selection-end-line="64" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_sign_up/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="17" column="48" selection-start-line="17" selection-start-column="48" selection-end-line="17" selection-end-column="48" />
         </state>
       </provider>
     </entry>

@@ -1,14 +1,26 @@
-from django.http import HttpResponse, JsonResponse
+# ===== Global Variable =======
 from os.path import dirname, abspath, join
-import sys
 
 _directory_ = dirname(abspath(__file__))
+# ===============================
+
+# ============== Imports =============
+from django.http import HttpResponse, JsonResponse
+import sys
+
+# ===================================
+
+# ============ Sys Path Appendments ============
 _maindir_ = dirname(_directory_)
 sys.path.append(join(_maindir_, 'utilities'))
+
+
+# ==============================================
 
 class Eternal(object):
     def __init__(self):
         self.kwargs = {}
+
 
 ETERNAL = Eternal()
 print("\n\nETERNAL HAS BEEN CREATED\n\n")
@@ -20,7 +32,7 @@ def set_verification_text(request, verification_text=None):
     else:
         ETERNAL.kwargs['verftext'] = verification_text
         try:
-            from emailcreation import OutLook
+            from emailutils import OutLook
             result = OutLook.insert_verification_text(ETERNAL.kwargs['driver'], verification_text)
             if result:
                 from .models import Person
@@ -47,11 +59,13 @@ def set_verification_text(request, verification_text=None):
             print(err)
         return JsonResponse({'erro': True, })
 
+
 def get_verification_text(request):
     try:
-        return JsonResponse({'ready': True, 'text':ETERNAL.kwargs['verftext'] })
+        return JsonResponse({'ready': True, 'text': ETERNAL.kwargs['verftext']})
     except Exception as err:
         return HttpResponse("Some exception: Type: {0}, err: {1}".format(type(err), err))
+
 
 def get_verification_image(request, img_key='driver123'):
     if img_key == None:
@@ -63,7 +77,7 @@ def get_verification_image(request, img_key='driver123'):
 def start_driver_activity():
     method_name = 'start_driver_activity'
     try:
-        from emailcreation import OutLook
+        from emailutils import OutLook
 
         result, img_url, driver, person = OutLook.create_random_person()
         if result != False:
@@ -85,21 +99,21 @@ def start_driver_activity():
         print("--------------------------------")
         return False
 
+
 def create_outlook_email(request):
     method_name = "create_outlook_email"
     if request.method == "GET":
         result = start_driver_activity()
         if result:
             f = open(join(_maindir_, 'utilities/verification_image.html'), 'r')
-            html_page=''
+            html_page = ''
             for line in f.readlines():
-                html_page+=line
+                html_page += line
             return HttpResponse(html_page)
         else:
             return HttpResponse("Some thing wrong has happend")
     else:
         return HttpResponse("Method Tried = {0}.\nMethod Allowed = GET".format(request.method))
-
 
 # def create_proton_mail_account(request, username, password, verf_email):
 #     sign_up_link = "https://mail.protonmail.com/create/new?language=en"
