@@ -9,31 +9,16 @@ import json
 import random
 import sys
 
-base_dir_path = dirname(dirname(dirname(dirname(abspath(__file__)))))
-common_path = dirname(dirname(abspath(__file__)))
+_directory_ = dirname(abspath(__file__))
+_maindir_ = dirname(_directory_)
 
-chromedriver_path = join(base_dir_path, "chromedriver_linux64/chromedriver")
-names_collection_path = join(common_path, "names_collection")
+sys.path.append(_directory_)
+from tools import init_chrome_driver
 
-br_males_json_path = join(names_collection_path, 'br_males.json')
-br_females_json_path = join(names_collection_path, 'br_females.json')
-us_males_json_path = join(names_collection_path, 'us_males.json')
-us_females_json_path = join(names_collection_path, 'us_females.json')
-
-
-def init_chrome_driver(headless=False, incognito=False, url=""):
-    global chromedriver_path
-    chrome_options = ChromeOptions()
-    if headless:
-        chrome_options.add_argument("---headless")
-    if incognito:
-        chrome_options.add_argument("--incognito")
-    print("chromedriver_path = {0}".format(chromedriver_path))
-    driver = Chrome(executable_path=chromedriver_path, options=chrome_options)
-    if url != "" and url != None and type(url) == str:
-        driver.get(url)
-    print("Chrome driver inicializado.")
-    return driver
+br_males_json_path = join(_directory_, 'names_collection/br_males.json')
+br_females_json_path = join(_directory_, 'names_collection/br_females.json')
+us_males_json_path = join(_directory_, 'names_collection/us_males.json')
+us_females_json_path = join(_directory_, 'names_collection/us_females.json')
 
 
 class OutLook(object):

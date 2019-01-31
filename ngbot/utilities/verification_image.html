@@ -22,7 +22,7 @@
         function submitText(event) {
             var verfText = document.getElementById('verf-text').value;
             event.preventDefault();
-            var url = `http://localhost:8000/createemail/setverftext/${verfText}/`;
+            var url = `http://localhost:8000/email/outlook/setverftext/${verfText}/`;
             console.log(url);
             var interval = setInterval(
                 () => {
@@ -65,7 +65,7 @@
         };
 
         function getImg() {
-            fetch("http://localhost:8000/createemail/getverfimg/driver123")
+            fetch("http://localhost:8000/email/outlook/getverfimg/driver123")
                 .then(
                     response => response.json()
                 )

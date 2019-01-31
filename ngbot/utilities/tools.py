@@ -29,3 +29,12 @@ def init_chrome_driver(headless=False, incognito=False, url="", verbose=False):
         print("Chrome Driver has started.")
 
     return driver
+
+
+def showObj(obj, name):
+    print("---------{0}---------".format(name))
+    for prop in dir(obj):
+        value = eval("obj.{0}".format(prop))
+        prop_type = str(type(value)).replace("class ", "").replace('<', '').replace(">", '')
+        print("({0}) {1}".format(prop_type, prop))
+    print("---------{0}---------".format(name))

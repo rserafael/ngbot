@@ -1,19 +1,23 @@
-#====== Global Variables ==========
+# ====== Global Variables ==========
 from os.path import dirname, abspath, join
+
 _directory_ = dirname(abspath(__file__))
-#==================================
+# ==================================
 
-#====== Sys Path Configuration =====
+# ====== Sys Path Configuration =====
 import sys
-sys.path.append(join(dirname(_directory_), 'utilities'))
-#=================================
 
-#====== Imports ====================
+sys.path.append(join(dirname(_directory_), 'utilities'))
+# =================================
+
+# ====== Imports ====================
 from django.http import JsonResponse
 import time
 from tools import init_chrome_driver
 import random
-#====================================
+
+
+# ====================================
 
 
 def retry_sign_up(driver, sign_up_btn, uname):
@@ -37,81 +41,74 @@ def retry_sign_up(driver, sign_up_btn, uname):
                         time.sleep(3)
                         print("retrying...")
                         retry_sign_up(driver, sign_up_btn, uname)
-
     else:
         return True
+
+
 class Instagram(object):
     def __init__(self):
         raise NotImplementedError("This is a static class. Should not be instantiated.")
 
     def create_username(person):
+        dates = [person.day, person.year, person.month]
+        username = "{0}{1}{2}".format(person.lastname, person.firstname, random.choice(dates))
+        return username.lower()
 
-        dates = [ person['day'], person['year'], person['month'] ]
-        username = "{0}{1}{2}".format(person['lastname'], person['firstname'], random.choice(dates))
-        return username
+    def account_creation(email, full_name, username, password):
+        try:
+            writing_time = 0.8
 
+            driver = init_chrome_driver(False, False, "https://www.instagram.com/")
+            time.sleep(2)
 
-    def create_account(request, email, full_name, username, password):
+            email_element = driver.find_element_by_name("emailOrPhone")
+            email_element.send_keys(email)
+            time.sleep(writing_time)
 
-        writing_time = 0.8
+            fname = driver.find_element_by_name("fullName")
+            fname.send_keys(full_name)
+            time.sleep(writing_time)
 
-        driver = init_chrome_driver(False, False, "https://www.instagram.com/")
-        time.sleep(2)
+            uname = driver.find_element_by_name("username")
+            uname.send_keys(username)
+            time.sleep(writing_time)
 
-        email_element = driver.find_element_by_name("emailOrPhone")
-        email_element.send_keys(email)
-        time.sleep(writing_time)
+            pwd = driver.find_element_by_name("password")
+            pwd.send_keys(password)
+            time.sleep(writing_time)
 
-        fname = driver.find_element_by_name("fullName")
-        fname.send_keys(full_name)
-        time.sleep(writing_time)
+            time.sleep(2)
 
-        uname = driver.find_element_by_name("username")
-        uname.send_keys(username)
-        time.sleep(writing_time)
+            return True
+        except Exception as err:
+            print("Instagram.account_creation: {0}".format(type(err)))
+            print(err)
+            print("===============================")
+            return False
 
-        pwd = driver.find_element_by_name("password")
-        pwd.send_keys(password)
-        time.sleep(writing_time)
+    def create_account(person, verbose=False):
+        person.username = Instagram.create_username(person)
+        if verbose:
+            print("username ({0}) created.".format(person.username))
+        result = Instagram.account_creation(person.email, "{0} {1}".format(person.firstname, person.lastname),
+                                            person.username, person.password)
+        return result
 
-        time.sleep(2)
-        #find the sign up button
-
-        # btns = driver.find_elements_by_tag_name("button")
-        # sign_up_btn = None
-        # for btn in btns:
-        #     if btn.get_property("innerText").find("Sign up") != -1:
-        #         sign_up_btn = btn
-        #         break
-        # if sign_up_btn != None:
-        #     retry_sign_up(driver, sign_up_btn, uname)
-        # else:
-        #     print("Não encontramos o Sign Up Button")
 
 def modelstest(request):
     from email_sign_up.models import Person
     people = Person.objects.all()
     person = random.choice(people)
-    people =
-    Instagram.create_account()
-    return JsonResponse({person['firstname'], person['lastname']})
-
-# if __name__ == "__main__":
-    # global email, full_name, username, password
-    # create_account(None, email, full_name, username, password)
-    # import sys
-    # print(sys.path)
-    # sys.path.append(dirname(this_directory))
-    # sys.path.append(dirname(join(this_directory, 'email_sign_up')))
-    # from django.conf import settings
-    # if not settings.configured:
-    #     print("configuring settings")
-    #     from ngbot import settings as ngbot_settings
-    #     settings.configure(default_settings=ngbot_settings, DEBUG=True)
-    #     time.sleep(5)
-    # try:
-    #
-    #
-    # except Exception as err:
-    #     print("Type: {0}: ".format(type(err)))
-    #     print(err)
+    result = Instagram.create_account(person)
+    if result:
+        return JsonResponse(
+            {
+                'firstname': person.firstname,
+                'lastname': person.lastname,
+                'username': person.username
+            })
+    else:
+        return JsonResponse(
+            {
+                'message': 'Failed!'
+            })

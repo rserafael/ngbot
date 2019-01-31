@@ -2,9 +2,9 @@ from django.http import HttpResponse, JsonResponse
 from os.path import dirname, abspath, join
 import sys
 
-common_base = dirname(abspath(__file__))
-script_base = join(common_base, 'email_host_scripts')
-sys.path.append(script_base)
+_directory_ = dirname(abspath(__file__))
+_maindir_ = dirname(_directory_)
+sys.path.append(join(_maindir_, 'utilities'))
 
 class Eternal(object):
     def __init__(self):
@@ -14,22 +14,13 @@ ETERNAL = Eternal()
 print("\n\nETERNAL HAS BEEN CREATED\n\n")
 
 
-def showObj(obj, name):
-    print("---------{0}---------".format(name))
-    for prop in dir(obj):
-        value = eval("obj.{0}".format(prop))
-        prop_type = str(type(value)).replace("class ", "").replace('<', '').replace(">", '')
-        print("({0}) {1}".format(prop_type, prop))
-    print("---------{0}---------".format(name))
-
-
 def set_verification_text(request, verification_text=None):
     if verification_text == None:
         return JsonResponse({'erro': True})
     else:
         ETERNAL.kwargs['verftext'] = verification_text
         try:
-            from outlook import OutLook
+            from emailcreation import OutLook
             result = OutLook.insert_verification_text(ETERNAL.kwargs['driver'], verification_text)
             if result:
                 from .models import Person
@@ -38,12 +29,14 @@ def set_verification_text(request, verification_text=None):
                            lastname=person['lastname'],
                            country=person['country_symbol'],
                            sex=person['sex'],
-                           email=person['email'],
+                           email=person['email'] + "@outlook.com",
                            password=person['password'],
                            day=person['day'],
                            month=person['month'],
                            year=person['year'],
-                           emailCreated=True)
+                           emailCreated=True,
+                           ngCreated=False,
+                           username="")
                 p.save()
                 print("\n--> Person created.\n")
                 return JsonResponse({'erro': False})
@@ -70,7 +63,7 @@ def get_verification_image(request, img_key='driver123'):
 def start_driver_activity():
     method_name = 'start_driver_activity'
     try:
-        from outlook import OutLook
+        from emailcreation import OutLook
 
         result, img_url, driver, person = OutLook.create_random_person()
         if result != False:
@@ -97,7 +90,7 @@ def create_outlook_email(request):
     if request.method == "GET":
         result = start_driver_activity()
         if result:
-            f = open(join(common_base, 'verification_image.html'), 'r')
+            f = open(join(_maindir_, 'utilities/verification_image.html'), 'r')
             html_page=''
             for line in f.readlines():
                 html_page+=line
