@@ -4,7 +4,7 @@ from os.path import dirname, join, abspath
 
 _directory_ = dirname(abspath(__file__))
 sys.path.append(_directory_)
-from toots import init_chrome_driver
+from tools import init_chrome_driver
 
 class Instagram(object):
     def __init__(self):
