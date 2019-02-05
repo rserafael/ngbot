@@ -49,8 +49,11 @@ def modelstest(request):
     from email_sign_up.models import Person
     people = Person.objects.all()
     person = random.choice(people)
+    while person.ngCreated:
+        person = random.choice(people)
     result = Instagram.create_account(person)
     if result:
+        person.ngCreated = True
         return JsonResponse(
             {
                 'firstname': person.firstname,
