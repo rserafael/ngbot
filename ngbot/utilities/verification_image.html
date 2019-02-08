@@ -40,11 +40,11 @@
                 .then(
                     (json) => {
                         clearInterval(interval);
-                        if (json.erro) {
+                        if (json.error) {
 
                             document.getElementById("message").innerText = "Foi um fracasso";
                         } else {
-                            document.getElementById("message").innerText = "Foi um sucesso";
+                            document.getElementById("message").innerText = `Sucesso!\n${json.person}`;
                         }
                     }
                 )

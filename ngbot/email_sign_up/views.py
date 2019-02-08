@@ -51,9 +51,9 @@ def set_verification_text(request, verification_text=None):
                            username="")
                 p.save()
                 print("\n--> Person created.\n")
-                return JsonResponse({'erro': False})
+                return JsonResponse({'error': False, 'person': p.__dict__})
             else:
-                return JsonResponse({'erro': True})
+                return JsonResponse({'error': True})
         except Exception as err:
             print("ERRO: {0}".format(type(err)))
             print(err)
@@ -114,6 +114,30 @@ def create_outlook_email(request):
             return HttpResponse("Some thing wrong has happend")
     else:
         return HttpResponse("Method Tried = {0}.\nMethod Allowed = GET".format(request.method))
+
+
+def make_person_json(person):
+    from .models import Person
+
+    if type(person) == Person:
+        json = {}
+        json['firstname']
+        json['lastname']
+        json['email']
+        json['password']
+        json['country']
+        json['sex']
+        json['day']
+        json['month']
+        json['year']
+    return None
+
+def all_outlook_people(request):
+    if request.method == "GET":
+        people = {}
+        from .models import Person
+        for person in Person.objects.all():
+            people[person.fistname] = person.__ditc__
 
 # def create_proton_mail_account(request, username, password, verf_email):
 #     sign_up_link = "https://mail.protonmail.com/create/new?language=en"

@@ -9,8 +9,8 @@ COUNTRIES = [
     ('BR', "Brazil"),
 ]
 
-class Person(models.Model):
 
+class Person(models.Model):
     firstname = models.TextField(max_length=1000, blank=True, null=True)
     lastname = models.TextField(max_length=1000, blank=True, null=True)
     email = models.EmailField(max_length=1000, blank=True, null=True)
@@ -23,3 +23,19 @@ class Person(models.Model):
     emailCreated = models.BooleanField(blank=True, null=True)
     ngCreated = models.BooleanField(blank=True, null=True)
     username = models.TextField(max_length=1000, blank=True, null=True)
+
+    def json_model(self):
+        json_model = {}
+        json_model['firstname'] = self.firstname
+        json_model['lastname'] = self.lastname
+        json_model['email'] = self.email
+        json_model['password'] = self.password
+        json_model['country'] = self.country
+        json_model['sex'] = self.sex
+        json_model['day'] = self.day
+        json_model['month'] = self.month
+        json_model['year'] = self.year
+        json_model['emailCreated'] = self.emailCreated
+        json_model['ngCreated'] = self.ngCreated
+        json_model['username'] = self.username
+        return json_model

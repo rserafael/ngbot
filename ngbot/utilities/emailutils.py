@@ -253,10 +253,59 @@ class OutLook(object):
                 print("we found it")
                 input.send_keys(verf_text)
                 OutLook.click_next_button(driver, 2)
+                time.sleep(5)
+                finalization = OutLook.finilize_account_creation(driver)
+                return finalization
+            else:
+                print("OutLook: insert_verification_text: id not found: {0}".format(id))
+                return False
+        return False
+
+    def next_btn_after_creation(driver):
+        try:
+            next_btns = driver.find_elements_by_class_name("nextButton")
+            if next_btns is None or len(next_btns) < 1:
+                return False
+            if len(next_btns) == 1:
+                next_btns[0].click()
                 return True
             else:
-                print("not yet: {0}".format(id))
+                for btn in next_btns:
+                    if btn.get_property("tagName").find("BUTTON") != -1:
+                        btn.click()
+                return True
+        except Exception as err:
+            print("Outlook: next_btn_after_creation: error type: {0}".format(type(err)))
+            return False
+
+    def click_get_started_btn(driver):
+        btns = driver.find_elements_by_class_name("primaryButton")
+        if btns is None or len(btns) < 1:
+            print("OutLook: get_started_btn: btns is None or empty")
+            return False
+        if len(btns) == 1:
+            primary_btn = btns[0]
+            primary_btn.click()
+            return True
+        else:
+            for btn in btns:
+                if btn.get_property("innerText").find("Get Started") != -1:
+                    btn.click()
+                    return True
+        print("OutLook: get_started_btn: primary button not found")
+        return False
+
+    def finilize_account_creation(driver):
+        count = 0
+        while count < 4:
+            count += 1
+            ended = OutLook.click_get_started_btn(driver)
+            if ended:
+                return True
+            nxt_btn = OutLook.next_btn_after_creation(driver)
+            if not nxt_btn:
                 return False
+        print("Outlook: finilize_account_creation: count exceeded: {0}".format(count))
         return False
 
     def create_random_person(sex='', country='', password='R$&contafalsa95'):
@@ -269,12 +318,12 @@ class OutLook(object):
         print(person)
         email = OutLook.create_email(person['name'], person['lastname'],
                                      number=random.choice([person['day'], person['month'], person['year']]))
-        result, img_url, driver = OutLook.create_new_account(driver,email, password, person['name'],
-                                                        person['lastname'], person['country'], person['day'],
-                                                        person['month'], person['year'])
+        result, img_url, driver = OutLook.create_new_account(driver, email, password, person['name'],
+                                                             person['lastname'], person['country'], person['day'],
+                                                             person['month'], person['year'])
         if result:
             person['email'] = email
-            person['password'] = password+"@outlook.com"
+            person['password'] = password + "@outlook.com"
             return result, img_url, driver, person
         else:
             print("create_random_person: ")
@@ -310,5 +359,3 @@ class Account(object):
                 return random.choice(json_paths)
         else:
             return random.choice(json_paths)
-
-
