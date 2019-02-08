@@ -5,6 +5,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
+from threading import Thread
 import json
 import random
 import sys
@@ -202,7 +203,6 @@ class OutLook(object):
                 for img in imgs:
                     if img.get_attribute("alt").find("Visual Challenge") != -1:
                         return True, img.get_attribute("src")
-                        break
                     else:
                         time.sleep(0.5)
                         imgs = driver.find_elements_by_tag_name("img")
@@ -245,6 +245,8 @@ class OutLook(object):
             return False, "Erro no insert_address", None
 
     def insert_verification_text(driver, verf_text=''):
+        first_url = driver.current_url
+        print("first_url = {0}".format(first_url))
         inputs = driver.find_elements_by_tag_name("input")
         print("numbers of inputs: {0}".format(len(inputs)))
         for input in inputs:
@@ -253,9 +255,13 @@ class OutLook(object):
                 print("we found it")
                 input.send_keys(verf_text)
                 OutLook.click_next_button(driver, 2)
-                time.sleep(5)
-                finalization = OutLook.finilize_account_creation(driver)
-                return finalization
+                time.sleep(3)
+                second_url = driver.current_url
+                if first_url is not second_url:
+                    Thread(target=OutLook.finilize_account_creation, args=[driver, ]).start()
+                    return True
+                return False
+
             else:
                 print("OutLook: insert_verification_text: id not found: {0}".format(id))
                 return False
@@ -265,53 +271,77 @@ class OutLook(object):
         try:
             next_btns = driver.find_elements_by_class_name("nextButton")
             if next_btns is None or len(next_btns) < 1:
+                print("OutLook: next_btn_after_creation: next_btn not found.")
                 return False
             if len(next_btns) == 1:
                 next_btns[0].click()
+                print("OutLook: next_btn_after_creation: next_btn found.")
                 time.sleep(3)
                 return True
             else:
+                clicked = False
                 for btn in next_btns:
                     if btn.get_property("tagName").find("BUTTON") != -1:
                         btn.click()
-                time.sleep(3)
-                return True
+                        clicked = True
+                        time.sleep(3)
+                if clicked:
+                    print("OutLook: next_btn_after_creation: next_btn found.")
+                    return True
+                print("OutLook: next_btn_after_creation: next_btn not found.")
+                return False
         except Exception as err:
             print("Outlook: next_btn_after_creation: error type: {0}".format(type(err)))
             return False
 
     def click_get_started_btn(driver):
-        btns = driver.find_elements_by_class_name("primaryButton")
-        if btns is None or len(btns) < 1:
-            print("OutLook: get_started_btn: btns is None or empty")
+        try:
+            btn = driver.find_element_by_class_name("primaryButton")
+            print("primary button: {0}".format(btn))
+            if btn is not None:
+                btn.click()
+                return True
             return False
-        if len(btns) == 1:
-            primary_btn = btns[0]
-            primary_btn.click()
-            return True
-        else:
-            for btn in btns:
-                if btn.get_property("innerText").find("Get Started") != -1:
-                    btn.click()
-                    return True
-        print("OutLook: get_started_btn: primary button not found")
-        return False
+        except Exception as err:
+            print("OutLook: click_get_started_btn: 'type error: {0}, reason: {1}'".format(type(err), err))
+        # btns = driver.find_elements_by_class_name("primaryButton")
+        # driver = Chrome()
+        #
+        # if btns is None or len(btns) < 1:
+        #     print("OutLook: get_started_btn: btns is None or empty")
+        #     return False
+        # if len(btns) == 1:
+        #     primary_btn = btns[0]
+        #     primary_btn.click()
+        #     time.sleep(2)
+        #     return True
+        # else:
+        #     for btn in btns:
+        #         if btn.get_property("innerText").find("Get Started") != -1:
+        #             btn.click()
+        #             time.sleep(2)
+        #             return True
+        # print("OutLook: get_started_btn: primary button not found")
+        # return False
 
     def finilize_account_creation(driver):
-        count = 0
-        while count < 4:
+        count = 1
+        while count < 10:
+            result = OutLook.next_btn_after_creation(driver)
+            if not result:
+                print("OutLook: finilize_account_creation: 'count: {0}, finished with next button.'".format(count))
+                break
             count += 1
-            ended = OutLook.click_get_started_btn(driver)
-            if ended:
-                return True
-            nxt_btn = OutLook.next_btn_after_creation(driver)
-            if not nxt_btn:
-                return False
-        print("Outlook: finilize_account_creation: count exceeded: {0}".format(count))
-        return False
+        time.sleep(3)
+        result = OutLook.click_get_started_btn(driver)
+        if result:
+            print("Finalized with Success!!")
+        else:
+            print("Finalized with Failure!!")
+        return result
 
     def create_random_person(sex='', country='', password='R$&contafalsa95'):
-        driver = init_chrome_driver(False, True, "https://outlook.live.com/owa/?nlp=1&signup=1")
+        driver = init_chrome_driver(False, False, "https://outlook.live.com/owa/?nlp=1&signup=1")
         names_json_path = Account.get_person_json(sex, country)
         names_json = json.load(open(names_json_path, "r"))
         rand_key = Account.get_a_random_key(list(names_json.keys()))
@@ -325,7 +355,7 @@ class OutLook(object):
                                                              person['month'], person['year'])
         if result:
             person['email'] = email
-            person['password'] = password + "@outlook.com"
+            person['password'] = password
             return result, img_url, driver, person
         else:
             print("create_random_person: ")

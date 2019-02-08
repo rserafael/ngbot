@@ -52,14 +52,17 @@ def set_verification_text(request, verification_text=None):
                            ngCreated=False,
                            username="")
                 p.save()
-                print("\n--> Person created.\n")
-                return JsonResponse({'error': False, 'person': p.__dict__})
+                print("\nPerson created: {0}\n".format(json.dumps(p.json_model())))
+                ETERNAL.kwargs['driver'].quit()
+                return JsonResponse({'error': False, 'person': json.dumps(p.json_model())})
             else:
+                ETERNAL.kwargs['driver'].quit()
                 return JsonResponse({'error': True})
         except Exception as err:
             print("ERRO: {0}".format(type(err)))
             print(err)
-        return JsonResponse({'erro': True, })
+            ETERNAL.kwargs['driver'].quit()
+            return JsonResponse({'error': True, })
 
 
 def get_verification_text(request):
