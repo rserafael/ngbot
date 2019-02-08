@@ -268,11 +268,13 @@ class OutLook(object):
                 return False
             if len(next_btns) == 1:
                 next_btns[0].click()
+                time.sleep(3)
                 return True
             else:
                 for btn in next_btns:
                     if btn.get_property("tagName").find("BUTTON") != -1:
                         btn.click()
+                time.sleep(3)
                 return True
         except Exception as err:
             print("Outlook: next_btn_after_creation: error type: {0}".format(type(err)))

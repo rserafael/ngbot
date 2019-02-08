@@ -80,7 +80,6 @@ def start_driver_activity(sex='', country=''):
     method_name = 'start_driver_activity'
     try:
         from emailutils import OutLook
-
         result, img_url, driver, person = OutLook.create_random_person(sex, country)
         if result != False:
             ETERNAL.kwargs['driver'] = driver
@@ -122,7 +121,7 @@ def all_outlook_people(request):
     if request.method == "GET":
         people = {}
         for person in Person.objects.all():
-            people[person.fistname] = person.json_model()
+            people[person.firstname] = person.json_model()
         return JsonResponse(people)
     return JsonResponse({"error": "Failed at retreiving Person information."})
 
