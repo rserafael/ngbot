@@ -11,7 +11,7 @@ sys.path.append(join(dirname(_directory_), 'utilities'))
 # =================================
 
 # ====== Imports ====================
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 import time
 from instagramutils import Instagram
 import random
@@ -45,23 +45,71 @@ def retry_sign_up(driver, sign_up_btn, uname):
         return True
 
 
-def modelstest(request):
-    from email_sign_up.models import Person
-    people = Person.objects.all()
-    person = random.choice(people)
-    while person.ngCreated:
-        person = random.choice(people)
-    result = Instagram.create_account(person)
-    if result:
-        person.ngCreated = True
-        return JsonResponse(
-            {
-                'firstname': person.firstname,
-                'lastname': person.lastname,
-                'username': person.username
-            })
-    else:
-        return JsonResponse(
-            {
-                'message': 'Failed!'
-            })
+def models_test(request):
+    if request.method == "GET":
+        from email_sign_up.models import Person
+        no_ng_people = list(Person.objects.filter(ngCreated=None))
+        no_ng_people.extend(list(Person.objects.filter(ngCreated=False)))
+        if len(no_ng_people) > 0:
+            person = random.choice(no_ng_people)
+            tries = request.GET.get("tries")
+            # print("tries: {0}".format(tries))
+            if tries is not None:
+                result = Instagram.create_account(person=person, tries=int(tries))
+            else:
+                result = Instagram.create_account(person=person)
+            if result:
+                person.ngCreated = True
+                person.save()
+                return JsonResponse(
+                    {
+                        'firstname': person.firstname,
+                        'lastname': person.lastname,
+                        'username': person.username
+                    })
+            else:
+                return JsonResponse(
+                    {
+                        'message': 'Failed!'
+                    })
+        else:
+            return JsonResponse(
+                {
+                    'message': "There is no person without instagram",
+                })
+
+
+def reset_all_instagram_accounts(request, pwd=None):
+    if request.method == "GET":
+        if pwd is not None and pwd == 'R$&ngreset95':
+            from email_sign_up.models import Person
+            for person in Person.objects.all():
+                person.ngCreated = False
+                person.username = ''
+                person.save()
+            return JsonResponse({'result': True})
+    return JsonResponse({'result': False})
+
+
+def request_show(request):
+    response = show_obj(request.GET, None, True)
+    if type(response) == str:
+        return HttpResponse(response)
+    return JsonResponse(response)
+
+
+def show_obj(obj, dictionary={}, html=True):
+    html_txt = ''
+    if obj is not None:
+        for prop in dir(obj):
+            prop_type = eval("type(obj.{0})".format(prop))
+            txt = "( {0} ) {1}".format(prop_type, prop).replace("<class '", '').replace("'>", '')
+            if html is True:
+                html_txt += "<p>{0}</p>".format(txt)
+            elif dictionary is None:
+                print(txt)
+            else:
+                dictionary[prop] = txt
+    if html is True:
+        return html_txt
+    return dictionary

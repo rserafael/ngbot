@@ -74,7 +74,7 @@ def get_verification_image(request, img_key='driver123'):
         return JsonResponse({'erro': False, 'src': ETERNAL.kwargs['img_url']})
 
 
-def start_driver_activity():
+def start_driver_activity(sex='', country=''):
     method_name = 'start_driver_activity'
     try:
         from emailutils import OutLook

@@ -20,5 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     path(route='email/', view=include('email_sign_up.urls')),
-    path(route="instagram/", view=include("ng_controler.urls"))
+    path(route="ng/", view=include("ng_controler.urls")),
 ]

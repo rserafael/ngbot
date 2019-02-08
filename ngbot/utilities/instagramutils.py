@@ -16,7 +16,7 @@ class Instagram(object):
     def create_username(person):
         dates = [person.day, person.year, person.month]
         username = "{0}{1}{2}".format(person.lastname.replace(" ", ''), person.firstname.replace(" ", ''),
-                                       random.choice(dates))
+                                      random.choice(dates))
         return username.lower()
 
     def try_refresh(error_input):
@@ -49,8 +49,6 @@ class Instagram(object):
                 Instagram.try_refresh(element)
 
     def sign_up(driver):
-        from selenium.webdriver import Chrome
-        driver = Chrome
         buttons = driver.find_elements_by_tag_name("button")
         btn = None
         for button in buttons:
@@ -68,12 +66,28 @@ class Instagram(object):
         for el in elements:
             el.click()
 
-    def account_creation(email, full_name, username, password):
-        try:
-            writing_time = 1
+    def refresh_if_possible(driver):
+        refreshers = driver.find_elements_by_class_name("coreSpriteInputRefresh")
+        # print("refreshers length = {0}".format(len(refreshers)))
+        if len(refreshers) == 1:
+            refresh_button = refreshers[0].get_property("parentElement")
+            if refresh_button is not None:
+                refresh_button.click()
+                # print("clicked")
 
-            driver = init_chrome_driver(True, True, "https://www.instagram.com/")
-            time.sleep(2)
+    def find_error(driver):
+        error_alert = driver.find_element_by_id("ssfErrorAlert")
+        if error_alert is not None:
+            print(error_alert.get_property("innerText"))
+        else:
+            print("There is no error")
+
+    def account_creation(email, full_name, username, password, tries):
+        try:
+            writing_time = 2
+
+            driver = init_chrome_driver(False, True, "https://www.instagram.com/")
+            time.sleep(writing_time)
 
             email_element = driver.find_element_by_name("emailOrPhone")
             email_element.send_keys(email)
@@ -94,20 +108,21 @@ class Instagram(object):
             root = driver.find_element_by_id("react-root")
             # ActionChains(driver).move_to_element(root).click().perform()
             Instagram.click_out(driver)
-            time.sleep(3)
+            Instagram.refresh_if_possible(driver)
+            Instagram.refresh_if_possible(driver)
+            time.sleep(writing_time)
 
-            tries = 1
+            tries_count = 1
             while True:
                 result, prob_err = Instagram.check_correctness(driver)
                 if result:
-                    # result = Instagram.sign_up(driver)
+                    result = Instagram.sign_up(driver)
                     if result:
-                        driver.quit()
+                        # driver.quit()
                         return True
-                    else:
-                        return False
+                    return False
                 else:
-                    if tries > 3:
+                    if tries_count > tries:
                         return False
                     else:
                         Instagram.refresh_factor(prob_err)
@@ -122,10 +137,10 @@ class Instagram(object):
             print("===============================")
             return False
 
-    def create_account(person, verbose=False):
+    def create_account(person, tries=5, verbose=False):
         person.username = Instagram.create_username(person)
         if verbose:
             print("username ({0}) created.".format(person.username))
         result = Instagram.account_creation(person.email, "{0} {1}".format(person.firstname, person.lastname),
-                                            person.username, person.password)
+                                            person.username, person.password, tries)
         return result
