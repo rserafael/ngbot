@@ -61,14 +61,14 @@ def set_verification_text(request, verification_text=None):
 
 
 def get_verification_text(request):
-    try:
+    if ETERNAL.kwargs.get("verftext") is not None:
         return JsonResponse({'ready': True, 'text': ETERNAL.kwargs['verftext']})
-    except Exception as err:
-        return HttpResponse("Some exception: Type: {0}, err: {1}".format(type(err), err))
+    else:
+        return JsonResponse({"ready": False, 'reason': "ETERNAL.kwargs.get('verftext') is empty right now"})
 
 
-def get_verification_image(request, img_key='driver123'):
-    if img_key == None:
+def get_verification_image(request):
+    if ETERNAL.kwargs.get("img_url") is None:
         return JsonResponse({'erro': True})
     else:
         return JsonResponse({'erro': False, 'src': ETERNAL.kwargs['img_url']})
@@ -79,7 +79,7 @@ def start_driver_activity(sex='', country=''):
     try:
         from emailutils import OutLook
 
-        result, img_url, driver, person = OutLook.create_random_person()
+        result, img_url, driver, person = OutLook.create_random_person(sex, country)
         if result != False:
             ETERNAL.kwargs['driver'] = driver
             ETERNAL.kwargs['img_url'] = img_url
@@ -103,7 +103,7 @@ def start_driver_activity(sex='', country=''):
 def create_outlook_email(request):
     method_name = "create_outlook_email"
     if request.method == "GET":
-        result = start_driver_activity()
+        result = start_driver_activity(sex=request.GET.get("sex"), country=request.GET.get('country'))
         if result:
             f = open(join(_maindir_, 'utilities/verification_image.html'), 'r')
             html_page = ''
