@@ -128,6 +128,22 @@ def all_outlook_people(request):
         return JsonResponse(people)
     return JsonResponse({"error": "Failed at retreiving Person information."})
 
+
+def who_can_log_in(request):
+    try:
+        if request.method == "GET":
+            from emailutils import OutLook
+            json_resp = {}
+            for person in Person.objects.all():
+                validation = OutLook.log_in(person)
+                print("{0} {1}: {2}".format(person.firstname, person.lastname, validation))
+                json_resp["{0} {1}".format(person.firstname, person.lastname)] = validation
+            return JsonResponse(json_resp)
+        else:
+            JsonResponse({"error": "Method {0} not allowed.".format(request.method)})
+    except Exception as error:
+        return JsonResponse({"exception": "{0}".format(type(error)), "reason": "{0}".format(error)})
+
 # def create_proton_mail_account(request, username, password, verf_email):
 #     sign_up_link = "https://mail.protonmail.com/create/new?language=en"
 #     driver = init_chrome_driver(False)

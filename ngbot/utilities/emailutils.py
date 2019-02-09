@@ -362,6 +362,61 @@ class OutLook(object):
             print(img_url)
             return result, None, None, None
 
+    def click_sign_in_btn(driver):
+        btns = driver.find_elements_by_class_name("linkButtonSigninHeader")
+        if len(btns) > 0:
+            for btn in btns:
+                if btn.get_property("innerText").find("Sign in") != -1:
+                    btn.click()
+                    time.sleep(0.5)
+                    return True
+        return False
+
+    def insert_input_log_in(driver, person, type):
+        inputs = driver.find_elements_by_tag_name("input")
+        type_input = None
+        submit_input = None
+        for input in inputs:
+            if type_input is not None and submit_input is not None:
+                break
+            elif input.get_property("type").find(type) != -1:
+                type_input = input
+            elif input.get_property("type").find("submit") != -1:
+                submit_input = input
+        if type_input is not None and submit_input is not None:
+            type_input.send_keys(person.email)
+            submit_input.click()
+            time.sleep(0.5)
+            return True
+        return False
+
+    def is_there_error_log_in(driver):
+        try:
+            error = driver.find_element_by_id("usernameError")
+            if error is None:
+                return False
+            print("OutLook: is_there_error_log_in: {0}".format(error.get_property("innerText")))
+            return True
+        except Exception as error:
+            print("OutLook: is_there_error_log_in: type: {0}, reason: {1}".format(type(error), error))
+            return False
+
+    def log_in(person):
+        from selenium.common.exceptions import NoSuchElementException
+        try:
+            driver = init_chrome_driver(True, True, "https://outlook.live.com/owa/")
+            if OutLook.click_sign_in_btn(driver):
+                if OutLook.insert_input_log_in(driver, person, "email"):
+                    if not OutLook.is_there_error_log_in(driver):
+                        if OutLook.insert_input_log_in(driver, person, "password"):
+                            return True
+            return False
+        except NoSuchElementException as error:
+            return False
+        except Exception as error:
+            print("OutLook: log_in: type: {0}, reason: {1}".format(type(error), error))
+            return False
+
 
 class Account(object):
     def __init__(self):
